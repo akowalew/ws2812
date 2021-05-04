@@ -163,17 +163,83 @@ Stm32_TIM14_SetCompareValue(u32 CompareValue)
 }
 
 internal void
-Stm32_WS2812_Set()
+Stm32_WS2812_Data_SendLow()
 {
     Stm32_TIM14_WaitForUpdate();
-    Stm32_TIM14_SetCompareValue(19 - 1);
+    Stm32_TIM14_SetCompareValue(20 - 1);
 }
 
 internal void
-Stm32_WS2812_Clear()
+Stm32_WS2812_Data_SendHigh()
 {
     Stm32_TIM14_WaitForUpdate();
-    Stm32_TIM14_SetCompareValue(39 - 1);
+    Stm32_TIM14_SetCompareValue(38 - 1);
+}
+
+internal void
+Stm32_WS2812_Data_SendReset()
+{
+    Stm32_TIM14_WaitForUpdate();
+    Stm32_TIM14_SetCompareValue(0);
+
+    sz Elapsed = 400;
+    while(Elapsed--)
+    {
+        Stm32_TIM14_WaitForUpdate();
+    }
+}
+
+typedef union
+{
+    u8 Bytes[3];
+    struct
+    {
+        u8 Green;
+        u8 Red;
+        u8 Blue;
+    };
+} ws2812_color;
+
+_Static_assert(sizeof(ws2812_color) == 3, "");
+
+internal ws2812_color
+WS2812_Color(u8 Green, u8 Red, u8 Blue)
+{
+    ws2812_color Result =
+    {
+        .Green = Green,
+        .Red = Red,
+        .Blue = Blue,
+    };
+
+    return Result;
+}
+
+internal void
+Stm32_WS2812_SendByte(u8 Byte)
+{
+    u8 Mask = 0x80;
+    while(Mask)
+    {
+        if(Byte & Mask)
+        {
+            Stm32_WS2812_Data_SendHigh();
+        }
+        else
+        {
+            Stm32_WS2812_Data_SendLow();
+        }
+
+        Mask >>= 1;
+    }
+}
+
+internal void
+Stm32_WS2812_SendColor(ws2812_color Color)
+{
+    Stm32_WS2812_SendByte(Color.Green);
+    Stm32_WS2812_SendByte(Color.Red);
+    Stm32_WS2812_SendByte(Color.Blue);
 }
 
 internal noreturn void
@@ -183,10 +249,26 @@ Stm32_Reset_Handler(void)
 
     while(1)
     {
+        for(sz Idx = 0;
+            Idx < 1024;
+            Idx++)
+        {
+            Stm32_WS2812_SendColor(WS2812_Color(0, 0, 0));
+        }
+
+        Stm32_WS2812_Data_SendReset();
+
         while(1)
         {
-            Stm32_WS2812_Set();
-            Stm32_WS2812_Clear();
+            Stm32_WS2812_SendColor(WS2812_Color(0, 0, 15));
+            Stm32_WS2812_SendColor(WS2812_Color(0, 15, 0));
+            Stm32_WS2812_SendColor(WS2812_Color(15, 0, 0));
+            Stm32_WS2812_SendColor(WS2812_Color(0, 15, 15));
+            Stm32_WS2812_SendColor(WS2812_Color(15, 15, 0));
+            Stm32_WS2812_SendColor(WS2812_Color(15, 0, 15));
+            Stm32_WS2812_SendColor(WS2812_Color(15, 15, 15));
+            Stm32_WS2812_SendColor(WS2812_Color(0, 0, 0));
+            Stm32_WS2812_Data_SendReset();
         }
     }
 }

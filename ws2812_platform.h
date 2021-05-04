@@ -24,3 +24,5 @@ typedef u32 b32;
 
 #define Assert(x) if(!(x)) { while(1) { BreakPoint(); } }
 #define InvalidCodePath() Assert(!"InvalidCodePath")
+
+#define ArrayCount(x) (sizeof(x)/sizeof(x[0]))
