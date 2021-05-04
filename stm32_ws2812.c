@@ -27,6 +27,32 @@ Stm32_Init_StaticData()
 internal void
 Stm32_Init_Clocks()
 {
+    u32 RCC_CFGR_Rest = (RCC_CFGR_HPRE_DIV1 |
+                         RCC_CFGR_PPRE_DIV1 |
+                         RCC_CFGR_PLLSRC_HSI_DIV2 |
+                         RCC_CFGR_PLLMUL12 |
+                         RCC_CFGR_MCO_NOCLOCK);
+
+    RCC->CFGR = (RCC_CFGR_SW_HSI |
+                 RCC_CFGR_Rest);
+
+    RCC->CR |= (RCC_CR_PLLON);
+
+    while(!(RCC->CR & RCC_CR_PLLRDY))
+    {
+        // NOTE: Busy wait
+    }
+
+    RCC->CFGR = (RCC_CFGR_SW_PLL |
+                 RCC_CFGR_Rest);
+
+    while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL)
+    {
+        // NOTE: Busy wait
+    }
+
+    Cpu_Hz = 48000000;
+
     RCC->AHBENR = (RCC_AHBENR_DMAEN |
                    RCC_AHBENR_SRAMEN |
                    RCC_AHBENR_FLITFEN |
@@ -38,8 +64,6 @@ Stm32_Init_Clocks()
                    RCC_AHBENR_GPIOFEN);
 
     RCC->APB1ENR = (RCC_APB1ENR_TIM14EN);
-
-    Cpu_Hz = 8000000;
 }
 
 internal void
@@ -79,7 +103,7 @@ Stm32_Init_TIM14()
 
     TIM14->ARR = (1000 - 1);
 
-    TIM14->CCR1 = (250);
+    TIM14->CCR1 = (500);
 
     TIM14->CR1 = (TIM_CR1_CEN |
                   TIM_CR1_ARPE);
@@ -88,11 +112,11 @@ Stm32_Init_TIM14()
 internal void
 Stm32_Init_SysTick()
 {
-    SysTick_Hz = 1;
+    SysTick_Hz = 4;
 
     u32 LoadValue = (Cpu_Hz / SysTick_Hz);
     Assert(LoadValue <= 0x00FFFFFF);
-    SysTick->LOAD = LoadValue;
+    SysTick->LOAD = (LoadValue - 1);
     SysTick->VAL = 0;
     SysTick->CTRL = (SysTick_CTRL_COUNTFLAG |
                      SysTick_CTRL_CLKSOURCE_CPU |
