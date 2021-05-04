@@ -21,3 +21,6 @@ typedef u32 b32;
 #define NoOperation() __asm volatile ("nop")
 
 #define in_section(x) __attribute__((section(x), used))
+
+#define Assert(x) if(!(x)) { while(1) { BreakPoint(); } }
+#define InvalidCodePath() Assert(!"InvalidCodePath")
