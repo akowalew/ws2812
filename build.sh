@@ -1,7 +1,7 @@
 #!/bin/sh
 
 CFLAGS="$CFLAGS -mthumb -mcpu=cortex-m0 -mtune=cortex-m0"
-CFLAGS="$CFLAGS -std=c99"
+CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -ffunction-sections -fdata-sections -Wl,-gc-sections"
 CFLAGS="$CFLAGS -nostartfiles -ffreestanding -nostdlib"
 CFLAGS="$CFLAGS -Wl,-T../stm32_ws2812.ld"
