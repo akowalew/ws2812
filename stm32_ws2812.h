@@ -23,6 +23,36 @@ Stm32_WaitForTick()
     }
 }
 
+internal void
+Stm32_LED_Toggle()
+{
+    GPIOA->ODR ^= (1 << 5);
+}
+
+internal void
+Stm32_LED_Set()
+{
+    GPIOA->BSRR = ((1 << 5) << 0);
+}
+
+internal void
+Stm32_LED_Clear()
+{
+    GPIOA->BSRR = ((1 << 5) << 16);
+}
+
+internal void
+Stm32_WS2812_Data_Set()
+{
+    GPIOA->BSRR = ((1 << 4) << 0);
+}
+
+internal void
+Stm32_WS2812_Data_Clear()
+{
+    GPIOA->BSRR = ((1 << 4) << 16);
+}
+
 //
 // NOTE: Symbols below should be provided by linker script
 //

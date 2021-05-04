@@ -44,15 +44,19 @@ internal void
 Stm32_Init_GPIOA()
 {
     GPIOA->MODER = (0x28000000 |
-                    GPIO_MODER_MODER5_OUTPUT);
+                    GPIO_MODER_MODER4_OUTPUT |
+                    GPIO_MODER_MODER5_OUTPUT );
 
     GPIOA->OTYPER = (0x00000000 |
+                     GPIO_OTYPER_OT4_PUSHPULL |
                      GPIO_OTYPER_OT5_PUSHPULL);
 
     GPIOA->OSPEEDR = (0x0C000000 |
+                      GPIO_OSPEEDR_OSPEEDR4_HIGH |
                       GPIO_OSPEEDR_OSPEEDR5_HIGH);
 
     GPIOA->PUPDR = (0x24000000 |
+                    GPIO_PUPDR_PUPDR4_NONE |
                     GPIO_PUPDR_PUPDR5_NONE);
 }
 
@@ -87,8 +91,12 @@ Stm32_Reset_Handler(void)
 
     while(1)
     {
-        GPIOA->ODR ^= (1 << 5);
+        Stm32_LED_Set();
+        Stm32_WS2812_Data_Set();
+        Stm32_WaitForTick();
 
+        Stm32_LED_Clear();
+        Stm32_WS2812_Data_Clear();
         Stm32_WaitForTick();
     }
 }
