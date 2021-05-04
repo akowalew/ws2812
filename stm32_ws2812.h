@@ -14,6 +14,15 @@ Stm32_FakeDelay(u32 Count)
     }
 }
 
+internal void
+Stm32_WaitForTick()
+{
+    while(!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG))
+    {
+        // NOTE: Dummy wait
+    }
+}
+
 //
 // NOTE: Symbols below should be provided by linker script
 //

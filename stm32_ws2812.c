@@ -4,6 +4,9 @@
 
 #include "stm32_ws2812.h"
 
+private_global u32 Cpu_Hz;
+private_global u32 SysTick_Hz;
+
 internal void
 Stm32_Init_StaticData()
 {
@@ -33,6 +36,8 @@ Stm32_Init_Clocks()
                    RCC_AHBENR_GPIOCEN |
                    RCC_AHBENR_GPIODEN |
                    RCC_AHBENR_GPIOFEN);
+
+    Cpu_Hz = 8000000;
 }
 
 internal void
@@ -52,11 +57,27 @@ Stm32_Init_GPIOA()
 }
 
 internal void
+Stm32_Init_SysTick()
+{
+    SysTick_Hz = 1;
+
+    u32 LoadValue = (Cpu_Hz / SysTick_Hz);
+    Assert(LoadValue <= 0x00FFFFFF);
+    SysTick->LOAD = LoadValue;
+    SysTick->VAL = 0;
+    SysTick->CTRL = (SysTick_CTRL_COUNTFLAG |
+                     SysTick_CTRL_CLKSOURCE_CPU |
+                     SysTick_CTRL_TICKINT |
+                     SysTick_CTRL_ENABLE);
+}
+
+internal void
 Stm32_Init()
 {
     Stm32_Init_StaticData();
     Stm32_Init_Clocks();
     Stm32_Init_GPIOA();
+    Stm32_Init_SysTick();
 }
 
 internal noreturn void
@@ -68,7 +89,7 @@ Stm32_Reset_Handler(void)
     {
         GPIOA->ODR ^= (1 << 5);
 
-        Stm32_FakeDelay(1000000);
+        Stm32_WaitForTick();
     }
 }
 
@@ -128,7 +149,7 @@ Stm32_PendSV_Handler()
 }
 #endif
 
-#if 1
+#if 0
 #define Stm32_SysTick_Handler Stm32_Dummy_Handler
 #else
 internal void
