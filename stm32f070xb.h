@@ -250,7 +250,15 @@ typedef struct
   __IO uint32_t ODR;          /*!< GPIO port output data register,              Address offset: 0x14      */
   __IO uint32_t BSRR;         /*!< GPIO port bit set/reset register,      Address offset: 0x1A */
   __IO uint32_t LCKR;         /*!< GPIO port configuration lock register,       Address offset: 0x1C      */
-  __IO uint32_t AFR[2];       /*!< GPIO alternate function low register,  Address offset: 0x20-0x24 */
+  union
+  {
+    __IO uint32_t AFR[2];       /*!< GPIO alternate function low register,  Address offset: 0x20-0x24 */
+    struct
+    {
+      __IO uint32_t AFRL;
+      __IO uint32_t AFRH;
+    };
+  };
   __IO uint32_t BRR;          /*!< GPIO bit reset register,                     Address offset: 0x28      */
 } GPIO_TypeDef;
 
@@ -2592,6 +2600,79 @@ typedef struct
 #define GPIO_AFRL_AFSEL7_Msk            (0xFUL << GPIO_AFRL_AFSEL7_Pos)         /*!< 0xF0000000 */
 #define GPIO_AFRL_AFSEL7                GPIO_AFRL_AFSEL7_Msk
 
+#define GPIO_AFRL_AFSEL0_AF0 (0 << GPIO_AFRL_AFSEL0_Pos)
+#define GPIO_AFRL_AFSEL0_AF1 (1 << GPIO_AFRL_AFSEL0_Pos)
+#define GPIO_AFRL_AFSEL0_AF2 (2 << GPIO_AFRL_AFSEL0_Pos)
+#define GPIO_AFRL_AFSEL0_AF3 (3 << GPIO_AFRL_AFSEL0_Pos)
+#define GPIO_AFRL_AFSEL0_AF4 (4 << GPIO_AFRL_AFSEL0_Pos)
+#define GPIO_AFRL_AFSEL0_AF5 (5 << GPIO_AFRL_AFSEL0_Pos)
+#define GPIO_AFRL_AFSEL0_AF6 (6 << GPIO_AFRL_AFSEL0_Pos)
+#define GPIO_AFRL_AFSEL0_AF7 (7 << GPIO_AFRL_AFSEL0_Pos)
+
+#define GPIO_AFRL_AFSEL1_AF0 (0 << GPIO_AFRL_AFSEL1_Pos)
+#define GPIO_AFRL_AFSEL1_AF1 (1 << GPIO_AFRL_AFSEL1_Pos)
+#define GPIO_AFRL_AFSEL1_AF2 (2 << GPIO_AFRL_AFSEL1_Pos)
+#define GPIO_AFRL_AFSEL1_AF3 (3 << GPIO_AFRL_AFSEL1_Pos)
+#define GPIO_AFRL_AFSEL1_AF4 (4 << GPIO_AFRL_AFSEL1_Pos)
+#define GPIO_AFRL_AFSEL1_AF5 (5 << GPIO_AFRL_AFSEL1_Pos)
+#define GPIO_AFRL_AFSEL1_AF6 (6 << GPIO_AFRL_AFSEL1_Pos)
+#define GPIO_AFRL_AFSEL1_AF7 (7 << GPIO_AFRL_AFSEL1_Pos)
+
+#define GPIO_AFRL_AFSEL2_AF0 (0 << GPIO_AFRL_AFSEL2_Pos)
+#define GPIO_AFRL_AFSEL2_AF1 (1 << GPIO_AFRL_AFSEL2_Pos)
+#define GPIO_AFRL_AFSEL2_AF2 (2 << GPIO_AFRL_AFSEL2_Pos)
+#define GPIO_AFRL_AFSEL2_AF3 (3 << GPIO_AFRL_AFSEL2_Pos)
+#define GPIO_AFRL_AFSEL2_AF4 (4 << GPIO_AFRL_AFSEL2_Pos)
+#define GPIO_AFRL_AFSEL2_AF5 (5 << GPIO_AFRL_AFSEL2_Pos)
+#define GPIO_AFRL_AFSEL2_AF6 (6 << GPIO_AFRL_AFSEL2_Pos)
+#define GPIO_AFRL_AFSEL2_AF7 (7 << GPIO_AFRL_AFSEL2_Pos)
+
+#define GPIO_AFRL_AFSEL3_AF0 (0 << GPIO_AFRL_AFSEL3_Pos)
+#define GPIO_AFRL_AFSEL3_AF1 (1 << GPIO_AFRL_AFSEL3_Pos)
+#define GPIO_AFRL_AFSEL3_AF2 (2 << GPIO_AFRL_AFSEL3_Pos)
+#define GPIO_AFRL_AFSEL3_AF3 (3 << GPIO_AFRL_AFSEL3_Pos)
+#define GPIO_AFRL_AFSEL3_AF4 (4 << GPIO_AFRL_AFSEL3_Pos)
+#define GPIO_AFRL_AFSEL3_AF5 (5 << GPIO_AFRL_AFSEL3_Pos)
+#define GPIO_AFRL_AFSEL3_AF6 (6 << GPIO_AFRL_AFSEL3_Pos)
+#define GPIO_AFRL_AFSEL3_AF7 (7 << GPIO_AFRL_AFSEL3_Pos)
+
+#define GPIO_AFRL_AFSEL4_AF0 (0 << GPIO_AFRL_AFSEL4_Pos)
+#define GPIO_AFRL_AFSEL4_AF1 (1 << GPIO_AFRL_AFSEL4_Pos)
+#define GPIO_AFRL_AFSEL4_AF2 (2 << GPIO_AFRL_AFSEL4_Pos)
+#define GPIO_AFRL_AFSEL4_AF3 (3 << GPIO_AFRL_AFSEL4_Pos)
+#define GPIO_AFRL_AFSEL4_AF4 (4 << GPIO_AFRL_AFSEL4_Pos)
+#define GPIO_AFRL_AFSEL4_AF5 (5 << GPIO_AFRL_AFSEL4_Pos)
+#define GPIO_AFRL_AFSEL4_AF6 (6 << GPIO_AFRL_AFSEL4_Pos)
+#define GPIO_AFRL_AFSEL4_AF7 (7 << GPIO_AFRL_AFSEL4_Pos)
+
+#define GPIO_AFRL_AFSEL5_AF0 (0 << GPIO_AFRL_AFSEL5_Pos)
+#define GPIO_AFRL_AFSEL5_AF1 (1 << GPIO_AFRL_AFSEL5_Pos)
+#define GPIO_AFRL_AFSEL5_AF2 (2 << GPIO_AFRL_AFSEL5_Pos)
+#define GPIO_AFRL_AFSEL5_AF3 (3 << GPIO_AFRL_AFSEL5_Pos)
+#define GPIO_AFRL_AFSEL5_AF4 (4 << GPIO_AFRL_AFSEL5_Pos)
+#define GPIO_AFRL_AFSEL5_AF5 (5 << GPIO_AFRL_AFSEL5_Pos)
+#define GPIO_AFRL_AFSEL5_AF6 (6 << GPIO_AFRL_AFSEL5_Pos)
+#define GPIO_AFRL_AFSEL5_AF7 (7 << GPIO_AFRL_AFSEL5_Pos)
+
+#define GPIO_AFRL_AFSEL6_AF0 (0 << GPIO_AFRL_AFSEL6_Pos)
+#define GPIO_AFRL_AFSEL6_AF1 (1 << GPIO_AFRL_AFSEL6_Pos)
+#define GPIO_AFRL_AFSEL6_AF2 (2 << GPIO_AFRL_AFSEL6_Pos)
+#define GPIO_AFRL_AFSEL6_AF3 (3 << GPIO_AFRL_AFSEL6_Pos)
+#define GPIO_AFRL_AFSEL6_AF4 (4 << GPIO_AFRL_AFSEL6_Pos)
+#define GPIO_AFRL_AFSEL6_AF5 (5 << GPIO_AFRL_AFSEL6_Pos)
+#define GPIO_AFRL_AFSEL6_AF6 (6 << GPIO_AFRL_AFSEL6_Pos)
+#define GPIO_AFRL_AFSEL6_AF7 (7 << GPIO_AFRL_AFSEL6_Pos)
+
+#define GPIO_AFRL_AFSEL7_AF0 (0 << GPIO_AFRL_AFSEL7_Pos)
+#define GPIO_AFRL_AFSEL7_AF1 (1 << GPIO_AFRL_AFSEL7_Pos)
+#define GPIO_AFRL_AFSEL7_AF2 (2 << GPIO_AFRL_AFSEL7_Pos)
+#define GPIO_AFRL_AFSEL7_AF3 (3 << GPIO_AFRL_AFSEL7_Pos)
+#define GPIO_AFRL_AFSEL7_AF4 (4 << GPIO_AFRL_AFSEL7_Pos)
+#define GPIO_AFRL_AFSEL7_AF5 (5 << GPIO_AFRL_AFSEL7_Pos)
+#define GPIO_AFRL_AFSEL7_AF6 (6 << GPIO_AFRL_AFSEL7_Pos)
+#define GPIO_AFRL_AFSEL7_AF7 (7 << GPIO_AFRL_AFSEL7_Pos)
+
+
 /* Legacy aliases */
 #define GPIO_AFRL_AFRL0_Pos             GPIO_AFRL_AFSEL0_Pos
 #define GPIO_AFRL_AFRL0_Msk             GPIO_AFRL_AFSEL0_Msk
@@ -2643,6 +2724,78 @@ typedef struct
 #define GPIO_AFRH_AFSEL15_Pos           (28U)
 #define GPIO_AFRH_AFSEL15_Msk           (0xFUL << GPIO_AFRH_AFSEL15_Pos)        /*!< 0xF0000000 */
 #define GPIO_AFRH_AFSEL15               GPIO_AFRH_AFSEL15_Msk
+
+#define GPIO_AFRH_AFSEL0_AF0 (0 << GPIO_AFRH_AFSEL0_Pos)
+#define GPIO_AFRH_AFSEL0_AF1 (1 << GPIO_AFRH_AFSEL0_Pos)
+#define GPIO_AFRH_AFSEL0_AF2 (2 << GPIO_AFRH_AFSEL0_Pos)
+#define GPIO_AFRH_AFSEL0_AF3 (3 << GPIO_AFRH_AFSEL0_Pos)
+#define GPIO_AFRH_AFSEL0_AF4 (4 << GPIO_AFRH_AFSEL0_Pos)
+#define GPIO_AFRH_AFSEL0_AF5 (5 << GPIO_AFRH_AFSEL0_Pos)
+#define GPIO_AFRH_AFSEL0_AF6 (6 << GPIO_AFRH_AFSEL0_Pos)
+#define GPIO_AFRH_AFSEL0_AF7 (7 << GPIO_AFRH_AFSEL0_Pos)
+
+#define GPIO_AFRH_AFSEL1_AF0 (0 << GPIO_AFRH_AFSEL1_Pos)
+#define GPIO_AFRH_AFSEL1_AF1 (1 << GPIO_AFRH_AFSEL1_Pos)
+#define GPIO_AFRH_AFSEL1_AF2 (2 << GPIO_AFRH_AFSEL1_Pos)
+#define GPIO_AFRH_AFSEL1_AF3 (3 << GPIO_AFRH_AFSEL1_Pos)
+#define GPIO_AFRH_AFSEL1_AF4 (4 << GPIO_AFRH_AFSEL1_Pos)
+#define GPIO_AFRH_AFSEL1_AF5 (5 << GPIO_AFRH_AFSEL1_Pos)
+#define GPIO_AFRH_AFSEL1_AF6 (6 << GPIO_AFRH_AFSEL1_Pos)
+#define GPIO_AFRH_AFSEL1_AF7 (7 << GPIO_AFRH_AFSEL1_Pos)
+
+#define GPIO_AFRH_AFSEL2_AF0 (0 << GPIO_AFRH_AFSEL2_Pos)
+#define GPIO_AFRH_AFSEL2_AF1 (1 << GPIO_AFRH_AFSEL2_Pos)
+#define GPIO_AFRH_AFSEL2_AF2 (2 << GPIO_AFRH_AFSEL2_Pos)
+#define GPIO_AFRH_AFSEL2_AF3 (3 << GPIO_AFRH_AFSEL2_Pos)
+#define GPIO_AFRH_AFSEL2_AF4 (4 << GPIO_AFRH_AFSEL2_Pos)
+#define GPIO_AFRH_AFSEL2_AF5 (5 << GPIO_AFRH_AFSEL2_Pos)
+#define GPIO_AFRH_AFSEL2_AF6 (6 << GPIO_AFRH_AFSEL2_Pos)
+#define GPIO_AFRH_AFSEL2_AF7 (7 << GPIO_AFRH_AFSEL2_Pos)
+
+#define GPIO_AFRH_AFSEL3_AF0 (0 << GPIO_AFRH_AFSEL3_Pos)
+#define GPIO_AFRH_AFSEL3_AF1 (1 << GPIO_AFRH_AFSEL3_Pos)
+#define GPIO_AFRH_AFSEL3_AF2 (2 << GPIO_AFRH_AFSEL3_Pos)
+#define GPIO_AFRH_AFSEL3_AF3 (3 << GPIO_AFRH_AFSEL3_Pos)
+#define GPIO_AFRH_AFSEL3_AF4 (4 << GPIO_AFRH_AFSEL3_Pos)
+#define GPIO_AFRH_AFSEL3_AF5 (5 << GPIO_AFRH_AFSEL3_Pos)
+#define GPIO_AFRH_AFSEL3_AF6 (6 << GPIO_AFRH_AFSEL3_Pos)
+#define GPIO_AFRH_AFSEL3_AF7 (7 << GPIO_AFRH_AFSEL3_Pos)
+
+#define GPIO_AFRH_AFSEL4_AF0 (0 << GPIO_AFRH_AFSEL4_Pos)
+#define GPIO_AFRH_AFSEL4_AF1 (1 << GPIO_AFRH_AFSEL4_Pos)
+#define GPIO_AFRH_AFSEL4_AF2 (2 << GPIO_AFRH_AFSEL4_Pos)
+#define GPIO_AFRH_AFSEL4_AF3 (3 << GPIO_AFRH_AFSEL4_Pos)
+#define GPIO_AFRH_AFSEL4_AF4 (4 << GPIO_AFRH_AFSEL4_Pos)
+#define GPIO_AFRH_AFSEL4_AF5 (5 << GPIO_AFRH_AFSEL4_Pos)
+#define GPIO_AFRH_AFSEL4_AF6 (6 << GPIO_AFRH_AFSEL4_Pos)
+#define GPIO_AFRH_AFSEL4_AF7 (7 << GPIO_AFRH_AFSEL4_Pos)
+
+#define GPIO_AFRH_AFSEL5_AF0 (0 << GPIO_AFRH_AFSEL5_Pos)
+#define GPIO_AFRH_AFSEL5_AF1 (1 << GPIO_AFRH_AFSEL5_Pos)
+#define GPIO_AFRH_AFSEL5_AF2 (2 << GPIO_AFRH_AFSEL5_Pos)
+#define GPIO_AFRH_AFSEL5_AF3 (3 << GPIO_AFRH_AFSEL5_Pos)
+#define GPIO_AFRH_AFSEL5_AF4 (4 << GPIO_AFRH_AFSEL5_Pos)
+#define GPIO_AFRH_AFSEL5_AF5 (5 << GPIO_AFRH_AFSEL5_Pos)
+#define GPIO_AFRH_AFSEL5_AF6 (6 << GPIO_AFRH_AFSEL5_Pos)
+#define GPIO_AFRH_AFSEL5_AF7 (7 << GPIO_AFRH_AFSEL5_Pos)
+
+#define GPIO_AFRH_AFSEL6_AF0 (0 << GPIO_AFRH_AFSEL6_Pos)
+#define GPIO_AFRH_AFSEL6_AF1 (1 << GPIO_AFRH_AFSEL6_Pos)
+#define GPIO_AFRH_AFSEL6_AF2 (2 << GPIO_AFRH_AFSEL6_Pos)
+#define GPIO_AFRH_AFSEL6_AF3 (3 << GPIO_AFRH_AFSEL6_Pos)
+#define GPIO_AFRH_AFSEL6_AF4 (4 << GPIO_AFRH_AFSEL6_Pos)
+#define GPIO_AFRH_AFSEL6_AF5 (5 << GPIO_AFRH_AFSEL6_Pos)
+#define GPIO_AFRH_AFSEL6_AF6 (6 << GPIO_AFRH_AFSEL6_Pos)
+#define GPIO_AFRH_AFSEL6_AF7 (7 << GPIO_AFRH_AFSEL6_Pos)
+
+#define GPIO_AFRH_AFSEL7_AF0 (0 << GPIO_AFRH_AFSEL7_Pos)
+#define GPIO_AFRH_AFSEL7_AF1 (1 << GPIO_AFRH_AFSEL7_Pos)
+#define GPIO_AFRH_AFSEL7_AF2 (2 << GPIO_AFRH_AFSEL7_Pos)
+#define GPIO_AFRH_AFSEL7_AF3 (3 << GPIO_AFRH_AFSEL7_Pos)
+#define GPIO_AFRH_AFSEL7_AF4 (4 << GPIO_AFRH_AFSEL7_Pos)
+#define GPIO_AFRH_AFSEL7_AF5 (5 << GPIO_AFRH_AFSEL7_Pos)
+#define GPIO_AFRH_AFSEL7_AF6 (6 << GPIO_AFRH_AFSEL7_Pos)
+#define GPIO_AFRH_AFSEL7_AF7 (7 << GPIO_AFRH_AFSEL7_Pos)
 
 /* Legacy aliases */
 #define GPIO_AFRH_AFRH0_Pos             GPIO_AFRH_AFSEL8_Pos
@@ -4833,6 +4986,9 @@ typedef struct
 #define TIM_CCMR1_CC1S_0          (0x1UL << TIM_CCMR1_CC1S_Pos)                 /*!< 0x00000001 */
 #define TIM_CCMR1_CC1S_1          (0x2UL << TIM_CCMR1_CC1S_Pos)                 /*!< 0x00000002 */
 
+#define TIM_CCMR1_CC1S_OUTPUT (0x0UL << TIM_CCMR1_CC1S_Pos)
+#define TIM_CCMR1_CC1S_INPUT (0x1UL << TIM_CCMR1_CC1S_Pos)
+
 #define TIM_CCMR1_OC1FE_Pos       (2U)
 #define TIM_CCMR1_OC1FE_Msk       (0x1UL << TIM_CCMR1_OC1FE_Pos)                /*!< 0x00000004 */
 #define TIM_CCMR1_OC1FE           TIM_CCMR1_OC1FE_Msk                          /*!<Output Compare 1 Fast enable */
@@ -4846,6 +5002,15 @@ typedef struct
 #define TIM_CCMR1_OC1M_0          (0x1UL << TIM_CCMR1_OC1M_Pos)                 /*!< 0x00000010 */
 #define TIM_CCMR1_OC1M_1          (0x2UL << TIM_CCMR1_OC1M_Pos)                 /*!< 0x00000020 */
 #define TIM_CCMR1_OC1M_2          (0x4UL << TIM_CCMR1_OC1M_Pos)                 /*!< 0x00000040 */
+
+#define TIM_CCMR1_OC1M_FROZEN     (0x0 << TIM_CCMR1_OC1M_Pos)
+#define TIM_CCMR1_OC1M_SET_ACTIVE_ON_MATCH     (0x1 << TIM_CCMR1_OC1M_Pos)
+#define TIM_CCMR1_OC1M_SET_INACTIVE_ON_MATCH   (0x2 << TIM_CCMR1_OC1M_Pos)
+#define TIM_CCMR1_OC1M_TOGGLE     (0x3 << TIM_CCMR1_OC1M_Pos)
+#define TIM_CCMR1_OC1M_FORCE_INACTIVE     (0x4 << TIM_CCMR1_OC1M_Pos)
+#define TIM_CCMR1_OC1M_FORCE_ACTIVE     (0x5 << TIM_CCMR1_OC1M_Pos)
+#define TIM_CCMR1_OC1M_PWM_ACTIVE_UNTIL_CCR     (0x6 << TIM_CCMR1_OC1M_Pos)
+#define TIM_CCMR1_OC1M_PWM_INACTIVE_UNTIL_CCR     (0x7 << TIM_CCMR1_OC1M_Pos)
 
 #define TIM_CCMR1_OC1CE_Pos       (7U)
 #define TIM_CCMR1_OC1CE_Msk       (0x1UL << TIM_CCMR1_OC1CE_Pos)                /*!< 0x00000080 */
@@ -4991,6 +5156,10 @@ typedef struct
 #define TIM_CCER_CC1P_Pos         (1U)
 #define TIM_CCER_CC1P_Msk         (0x1UL << TIM_CCER_CC1P_Pos)                  /*!< 0x00000002 */
 #define TIM_CCER_CC1P             TIM_CCER_CC1P_Msk                            /*!<Capture/Compare 1 output Polarity */
+
+#define TIM_CCER_CC1P_ACTIVE_HIGH (0x0UL << TIM_CCER_CC1P_Pos)
+#define TIM_CCER_CC1P_ACTIVE_LOW (0x1UL << TIM_CCER_CC1P_Pos)
+
 #define TIM_CCER_CC1NE_Pos        (2U)
 #define TIM_CCER_CC1NE_Msk        (0x1UL << TIM_CCER_CC1NE_Pos)                 /*!< 0x00000004 */
 #define TIM_CCER_CC1NE            TIM_CCER_CC1NE_Msk                           /*!<Capture/Compare 1 Complementary output enable */

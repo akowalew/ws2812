@@ -37,6 +37,8 @@ Stm32_Init_Clocks()
                    RCC_AHBENR_GPIODEN |
                    RCC_AHBENR_GPIOFEN);
 
+    RCC->APB1ENR = (RCC_APB1ENR_TIM14EN);
+
     Cpu_Hz = 8000000;
 }
 
@@ -44,7 +46,7 @@ internal void
 Stm32_Init_GPIOA()
 {
     GPIOA->MODER = (0x28000000 |
-                    GPIO_MODER_MODER4_OUTPUT |
+                    GPIO_MODER_MODER4_ALTERNATE |
                     GPIO_MODER_MODER5_OUTPUT );
 
     GPIOA->OTYPER = (0x00000000 |
@@ -58,6 +60,29 @@ Stm32_Init_GPIOA()
     GPIOA->PUPDR = (0x24000000 |
                     GPIO_PUPDR_PUPDR4_NONE |
                     GPIO_PUPDR_PUPDR5_NONE);
+
+    GPIOA->AFRL = (GPIO_AFRL_AFSEL4_AF4);
+}
+
+internal void
+Stm32_Init_TIM14()
+{
+    TIM14->CCMR1 = (TIM_CCMR1_CC1S_OUTPUT |
+                    TIM_CCMR1_OC1FE |
+                    TIM_CCMR1_OC1PE |
+                    TIM_CCMR1_OC1M_PWM_ACTIVE_UNTIL_CCR);
+
+    TIM14->CCER = (TIM_CCER_CC1E |
+                   TIM_CCER_CC1P_ACTIVE_HIGH);
+
+    TIM14->PSC = (8000 - 1);
+
+    TIM14->ARR = (1000 - 1);
+
+    TIM14->CCR1 = (250);
+
+    TIM14->CR1 = (TIM_CR1_CEN |
+                  TIM_CR1_ARPE);
 }
 
 internal void
@@ -81,6 +106,7 @@ Stm32_Init()
     Stm32_Init_StaticData();
     Stm32_Init_Clocks();
     Stm32_Init_GPIOA();
+    Stm32_Init_TIM14();
     Stm32_Init_SysTick();
 }
 
@@ -92,11 +118,9 @@ Stm32_Reset_Handler(void)
     while(1)
     {
         Stm32_LED_Set();
-        Stm32_WS2812_Data_Set();
         Stm32_WaitForTick();
 
         Stm32_LED_Clear();
-        Stm32_WS2812_Data_Clear();
         Stm32_WaitForTick();
     }
 }
