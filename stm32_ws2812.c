@@ -25,6 +25,13 @@ Stm32_Init_StaticData()
 }
 
 internal void
+Stm32_Init_FLASH()
+{
+    FLASH->ACR = (FLASH_ACR_LATENCY_ONE_WAIT_STATE |
+                  FLASH_ACR_PRFTBE);
+}
+
+internal void
 Stm32_Init_Clocks()
 {
     u32 RCC_CFGR_Rest = (RCC_CFGR_HPRE_DIV1 |
@@ -99,11 +106,13 @@ Stm32_Init_TIM14()
     TIM14->CCER = (TIM_CCER_CC1E |
                    TIM_CCER_CC1P_ACTIVE_HIGH);
 
-    TIM14->PSC = (8000 - 1);
+    u32 WS2812_Cycle_ns = 1250;
 
-    TIM14->ARR = (1000 - 1);
+    TIM14->PSC = 0;
 
-    TIM14->CCR1 = (500);
+    TIM14->ARR = (60 - 1);
+
+    TIM14->CCR1 = (30 - 1);
 
     TIM14->CR1 = (TIM_CR1_CEN |
                   TIM_CR1_ARPE);
@@ -130,8 +139,8 @@ Stm32_Init()
     Stm32_Init_StaticData();
     Stm32_Init_Clocks();
     Stm32_Init_GPIOA();
-    Stm32_Init_TIM14();
     Stm32_Init_SysTick();
+    Stm32_Init_TIM14();
 }
 
 internal noreturn void

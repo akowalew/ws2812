@@ -1748,6 +1748,9 @@ typedef struct
 #define FLASH_ACR_LATENCY_Msk             (0x1UL << FLASH_ACR_LATENCY_Pos)      /*!< 0x00000001 */
 #define FLASH_ACR_LATENCY                 FLASH_ACR_LATENCY_Msk                /*!< LATENCY bit (Latency) */
 
+#define FLASH_ACR_LATENCY_ZERO_WAIT_STATE (0x0UL << FLASH_ACR_LATENCY_Pos)
+#define FLASH_ACR_LATENCY_ONE_WAIT_STATE  (0x1UL << FLASH_ACR_LATENCY_Pos)
+
 #define FLASH_ACR_PRFTBE_Pos              (4U)
 #define FLASH_ACR_PRFTBE_Msk              (0x1UL << FLASH_ACR_PRFTBE_Pos)       /*!< 0x00000010 */
 #define FLASH_ACR_PRFTBE                  FLASH_ACR_PRFTBE_Msk                 /*!< Prefetch Buffer Enable */
