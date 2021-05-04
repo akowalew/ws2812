@@ -98,6 +98,8 @@ Stm32_Init_GPIOA()
 internal void
 Stm32_Init_TIM14()
 {
+    TIM14->DIER = (TIM_DIER_UIE);
+
     TIM14->CCMR1 = (TIM_CCMR1_CC1S_OUTPUT |
                     TIM_CCMR1_OC1FE |
                     TIM_CCMR1_OC1PE |
@@ -112,10 +114,9 @@ Stm32_Init_TIM14()
 
     TIM14->ARR = (60 - 1);
 
-    TIM14->CCR1 = (30 - 1);
+    TIM14->CCR1 = 0;
 
-    TIM14->CR1 = (TIM_CR1_CEN |
-                  TIM_CR1_ARPE);
+    TIM14->CR1 = (TIM_CR1_CEN);
 }
 
 internal void
@@ -129,18 +130,50 @@ Stm32_Init_SysTick()
     SysTick->VAL = 0;
     SysTick->CTRL = (SysTick_CTRL_COUNTFLAG |
                      SysTick_CTRL_CLKSOURCE_CPU |
-                     SysTick_CTRL_TICKINT |
+                     // SysTick_CTRL_TICKINT |
                      SysTick_CTRL_ENABLE);
 }
 
 internal void
 Stm32_Init()
 {
+    Stm32_Init_FLASH();
     Stm32_Init_StaticData();
     Stm32_Init_Clocks();
     Stm32_Init_GPIOA();
     Stm32_Init_SysTick();
     Stm32_Init_TIM14();
+}
+
+internal void
+Stm32_TIM14_WaitForUpdate()
+{
+    while(!(TIM14->SR & TIM_SR_UIF))
+    {
+        // NOTE: Busy wait
+    }
+
+    TIM14->SR = 0;
+}
+
+internal void
+Stm32_TIM14_SetCompareValue(u32 CompareValue)
+{
+    TIM14->CCR1 = CompareValue;
+}
+
+internal void
+Stm32_WS2812_Set()
+{
+    Stm32_TIM14_WaitForUpdate();
+    Stm32_TIM14_SetCompareValue(19 - 1);
+}
+
+internal void
+Stm32_WS2812_Clear()
+{
+    Stm32_TIM14_WaitForUpdate();
+    Stm32_TIM14_SetCompareValue(39 - 1);
 }
 
 internal noreturn void
@@ -150,11 +183,11 @@ Stm32_Reset_Handler(void)
 
     while(1)
     {
-        Stm32_LED_Set();
-        Stm32_WaitForTick();
-
-        Stm32_LED_Clear();
-        Stm32_WaitForTick();
+        while(1)
+        {
+            Stm32_WS2812_Set();
+            Stm32_WS2812_Clear();
+        }
     }
 }
 
@@ -214,7 +247,7 @@ Stm32_PendSV_Handler()
 }
 #endif
 
-#if 0
+#if 1
 #define Stm32_SysTick_Handler Stm32_Dummy_Handler
 #else
 internal void
@@ -384,7 +417,7 @@ Stm32_TIM7_IRQHandler()
 }
 #endif
 
-#if 1
+#if 0
 #define Stm32_TIM14_IRQHandler Stm32_Dummy_Handler
 #else
 internal void
