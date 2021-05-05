@@ -5,6 +5,12 @@ Stm32_Reboot(void)
 }
 
 internal void
+Stm32_NVIC_EnableInterrupt(IRQn_Type Interrupt)
+{
+    NVIC->ISER[0] = (uint32_t)(1UL << (((uint32_t)Interrupt) & 0x1FUL));
+}
+
+internal void
 Stm32_FakeDelay(u32 Count)
 {
     u32 Elapsed = Count;

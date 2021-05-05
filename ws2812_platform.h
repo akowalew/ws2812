@@ -14,6 +14,7 @@ typedef u32 b32;
 #define internal static
 #define private_global static
 #define public_global
+#define persist static
 
 #define noreturn __attribute__((noreturn))
 

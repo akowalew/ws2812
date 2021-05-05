@@ -11,16 +11,17 @@ internal void
 Stm32_Init_StaticData()
 {
     u32* Bss = &_sbss;
-    while(Bss != &_ebss)
+    while(Bss < &_ebss)
     {
         *(Bss++) = 0;
     }
 
     u32* Data = &_sdata;
     u32* Init = &_etext;
-    while(Data != &_edata)
+    while(Data < &_edata)
     {
-        *(Data++) = *(Init++);
+        u32 InitValue = *(Init++);
+        *(Data++) = InitValue;
     }
 }
 
@@ -98,8 +99,6 @@ Stm32_Init_GPIOA()
 internal void
 Stm32_Init_TIM14()
 {
-    TIM14->DIER = (TIM_DIER_UIE);
-
     TIM14->CCMR1 = (TIM_CCMR1_CC1S_OUTPUT |
                     TIM_CCMR1_OC1FE |
                     TIM_CCMR1_OC1PE |
@@ -107,8 +106,6 @@ Stm32_Init_TIM14()
 
     TIM14->CCER = (TIM_CCER_CC1E |
                    TIM_CCER_CC1P_ACTIVE_HIGH);
-
-    u32 WS2812_Cycle_ns = 1250;
 
     TIM14->PSC = 0;
 
@@ -122,7 +119,7 @@ Stm32_Init_TIM14()
 internal void
 Stm32_Init_SysTick()
 {
-    SysTick_Hz = 4;
+    SysTick_Hz = 50;
 
     u32 LoadValue = (Cpu_Hz / SysTick_Hz);
     Assert(LoadValue <= 0x00FFFFFF);
@@ -130,9 +127,9 @@ Stm32_Init_SysTick()
     SysTick->VAL = 0;
     SysTick->CTRL = (SysTick_CTRL_COUNTFLAG |
                      SysTick_CTRL_CLKSOURCE_CPU |
-                     // SysTick_CTRL_TICKINT |
                      SysTick_CTRL_ENABLE);
 }
+
 
 internal void
 Stm32_Init()
@@ -145,8 +142,11 @@ Stm32_Init()
     Stm32_Init_TIM14();
 }
 
+#define WS2812_DATA_LOW_TIM14_CCR_VALUE (19 - 1)
+#define WS2812_DATA_HIGH_TIM14_CCR_VALUE (39 - 1)
+
 internal void
-Stm32_TIM14_WaitForUpdate()
+Stm32_TIM14_WriteCompareValue(u16 CompareValue)
 {
     while(!(TIM14->SR & TIM_SR_UIF))
     {
@@ -154,122 +154,67 @@ Stm32_TIM14_WaitForUpdate()
     }
 
     TIM14->SR = 0;
-}
 
-internal void
-Stm32_TIM14_SetCompareValue(u32 CompareValue)
-{
     TIM14->CCR1 = CompareValue;
 }
 
 internal void
-Stm32_WS2812_Data_SendLow()
+Stm32_WS2812_Send(sz Count, u8* DataStart)
 {
-    Stm32_TIM14_WaitForUpdate();
-    Stm32_TIM14_SetCompareValue(20 - 1);
-}
-
-internal void
-Stm32_WS2812_Data_SendHigh()
-{
-    Stm32_TIM14_WaitForUpdate();
-    Stm32_TIM14_SetCompareValue(38 - 1);
-}
-
-internal void
-Stm32_WS2812_Data_SendReset()
-{
-    Stm32_TIM14_WaitForUpdate();
-    Stm32_TIM14_SetCompareValue(0);
-
-    sz Elapsed = 400;
-    while(Elapsed--)
+    u8* Data = DataStart;
+    u8* DataEnd = (DataStart + Count);
+    while(Data != DataEnd)
     {
-        Stm32_TIM14_WaitForUpdate();
-    }
-}
-
-typedef union
-{
-    u8 Bytes[3];
-    struct
-    {
-        u8 Green;
-        u8 Red;
-        u8 Blue;
-    };
-} ws2812_color;
-
-_Static_assert(sizeof(ws2812_color) == 3, "");
-
-internal ws2812_color
-WS2812_Color(u8 Green, u8 Red, u8 Blue)
-{
-    ws2812_color Result =
-    {
-        .Green = Green,
-        .Red = Red,
-        .Blue = Blue,
-    };
-
-    return Result;
-}
-
-internal void
-Stm32_WS2812_SendByte(u8 Byte)
-{
-    u8 Mask = 0x80;
-    while(Mask)
-    {
-        if(Byte & Mask)
+        u8 Byte = *(Data++);
+        u8 Mask = 0x80;
+        while(Mask)
         {
-            Stm32_WS2812_Data_SendHigh();
+            u16 CompareValue = (Byte & Mask) ? WS2812_DATA_HIGH_TIM14_CCR_VALUE : WS2812_DATA_LOW_TIM14_CCR_VALUE;
+            Stm32_TIM14_WriteCompareValue(CompareValue);
+            Mask >>= 1;
         }
-        else
-        {
-            Stm32_WS2812_Data_SendLow();
-        }
-
-        Mask >>= 1;
     }
+
+    Stm32_TIM14_WriteCompareValue(0);
 }
 
-internal void
-Stm32_WS2812_SendColor(ws2812_color Color)
+private_global u8 LookupTable[] =
 {
-    Stm32_WS2812_SendByte(Color.Green);
-    Stm32_WS2812_SendByte(Color.Red);
-    Stm32_WS2812_SendByte(Color.Blue);
-}
+    0, 36, 57, 72, 84, 94, 102, 109,
+    115, 121, 126, 130, 134, 138, 142, 145,
+    148, 151, 154, 157, 160, 162, 164, 167,
+    169, 171, 173, 175, 176, 178, 180, 182,
+    183, 185, 186, 188, 189, 191, 192, 193,
+    195, 196, 197, 198, 200, 201, 202, 203,
+};
 
 internal noreturn void
 Stm32_Reset_Handler(void)
 {
     Stm32_Init();
 
+    u8 Buffer[3] = { 0, 0, 0 };
+
+    sz Idx = 0;
+    int Delta = 1;
+
     while(1)
     {
-        for(sz Idx = 0;
-            Idx < 1024;
-            Idx++)
+        Buffer[2] = LookupTable[Idx];
+        if(Idx == ArrayCount(LookupTable)-1)
         {
-            Stm32_WS2812_SendColor(WS2812_Color(0, 0, 0));
+            Delta = -1;
+        }
+        else if(Idx == 0)
+        {
+            Delta = 1;
         }
 
-        Stm32_WS2812_Data_SendReset();
+        Idx += Delta;
 
-        while(1)
-        {
-            Stm32_WS2812_SendColor(WS2812_Color(0, 0, 15));
-            Stm32_WS2812_SendColor(WS2812_Color(0, 15, 0));
-            Stm32_WS2812_SendColor(WS2812_Color(15, 0, 0));
-            Stm32_WS2812_SendColor(WS2812_Color(0, 15, 15));
-            Stm32_WS2812_SendColor(WS2812_Color(15, 15, 0));
-            Stm32_WS2812_SendColor(WS2812_Color(15, 0, 15));
-            Stm32_WS2812_SendColor(WS2812_Color(15, 15, 15));
-            Stm32_WS2812_SendColor(WS2812_Color(0, 0, 0));
-            Stm32_WS2812_Data_SendReset();
-        }
+        Stm32_WS2812_Send(sizeof(Buffer), Buffer);
+        Stm32_LED_Toggle();
+        Stm32_WaitForTick();
     }
 }
 
@@ -499,13 +444,12 @@ Stm32_TIM7_IRQHandler()
 }
 #endif
 
-#if 0
+#if 1
 #define Stm32_TIM14_IRQHandler Stm32_Dummy_Handler
 #else
 internal void
 Stm32_TIM14_IRQHandler()
 {
-
 }
 #endif
 
