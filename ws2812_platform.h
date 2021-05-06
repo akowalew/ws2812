@@ -65,3 +65,80 @@ SaturateDecrementU8(u8* Value)
         *Value = *Value - 1;
     }
 }
+
+internal void
+CopyRange8(u8* DstStart, u8* DstEnd, u8* SrcStart)
+{
+    u8* Dst = DstStart;
+    u8* Src = SrcStart;
+    while(Dst != DstEnd)
+    {
+        *(Dst++) = *(Src++);
+    }
+}
+
+internal void
+CopyMemory8(u8* DstStart, u8* SrcStart, sz Count)
+{
+    u8* DstEnd = (DstStart + Count);
+    CopyRange8(DstStart, DstEnd, SrcStart);
+}
+
+internal void
+CopyMemory(void* DstStart, void* SrcStart, sz Count)
+{
+    CopyMemory8(DstStart, SrcStart, Count);
+}
+
+typedef struct
+{
+    c8* Next;
+    sz Elapsed;
+} stream;
+
+internal void
+Printb(stream* Stream, c8* Data, sz Count)
+{
+    Assert(Stream->Elapsed >= Count);
+
+    CopyMemory(Stream->Next, Data, Count);
+
+    Stream->Next += Count;
+
+    Stream->Elapsed -= Count;
+}
+
+#define Prints(Stream, String) Printb(Stream, String, ArrayCount(String)-1)
+
+internal void
+Printx(stream* Stream, unsigned Number)
+{
+    c8 TmpData[16];
+
+    Assert(Stream->Elapsed >= ArrayCount(TmpData));
+
+    c8* Tmp = TmpData;
+    *(Tmp++) = '\0';
+
+    do
+    {
+        unsigned Quotient = (Number / 16);
+        unsigned Remainder = (Number - Quotient * 16);
+        *(Tmp++) = (Remainder < 10) ? ('0' + Remainder) : ('A' + Remainder - 10);
+        Number = Quotient;
+    }
+    while(Number);
+    Tmp--;
+
+    c8* Next = Stream->Next;
+    *(Next++) = '0';
+    *(Next++) = 'x';
+    while((*(Next++) = *(Tmp--)))
+    {
+        // NOTE: Consume chars
+    }
+    Next--;
+
+    Stream->Elapsed -= (Next - Stream->Next);
+    Stream->Next = Next;
+}

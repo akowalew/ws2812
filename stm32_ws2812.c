@@ -115,14 +115,10 @@ Stm32_Init_USART2()
 
     USART2_BaudRate = 115200;
 
-    u32 BRR_Floor = (Cpu_Hz / USART2_BaudRate);
-    u32 BRR_Ceil = (BRR_Floor + 1);
+    u32 BRR_Value = 417;
+    Assert(BRR_Value <= 0x0000FFFF);
 
-    u32 BRR_Error_Floor = (Cpu_Hz - BRR_Floor * USART2_BaudRate);
-    u32 BRR_Error_Ceil = (BRR_Ceil * USART2_BaudRate - Cpu_Hz);
-    u32 BRR = (BRR_Error_Floor <= BRR_Error_Ceil) ? BRR_Floor : BRR_Ceil;
-
-    USART2->BRR = BRR;
+    USART2->BRR = BRR_Value;
 
     USART2->CR1 = (USART_CR1_UE |
                    USART_CR1_RE |
@@ -154,9 +150,10 @@ Stm32_Init_SysTick()
 {
     SysTick_Hz = 50;
 
-    u32 LoadValue = (Cpu_Hz / SysTick_Hz);
-    Assert(LoadValue <= 0x00FFFFFF);
-    SysTick->LOAD = (LoadValue - 1);
+    u32 LOAD_Value = (960000 - 1);
+    Assert(LOAD_Value <= 0x00FFFFFF);
+
+    SysTick->LOAD = LOAD_Value;
     SysTick->VAL = 0;
     SysTick->CTRL = (SysTick_CTRL_COUNTFLAG |
                      SysTick_CTRL_CLKSOURCE_CPU |
@@ -253,6 +250,26 @@ Stm32_Reset_Handler(void)
                 case 'e': for(sz Idx = 0; Idx < 8; Idx++) { SaturateIncrementU8(Buffer + Idx*3 + 2); } break;
                 case 'd': for(sz Idx = 0; Idx < 8; Idx++) { SaturateDecrementU8(Buffer + Idx*3 + 2); } break;
             }
+
+            c8 TxData[2048];
+            stream Stream =
+            {
+                .Next = TxData,
+                .Elapsed = ArrayCount(TxData),
+            };
+
+            Prints(&Stream, "\033[2J");
+            Prints(&Stream, "\033[H");
+            Prints(&Stream, "\r\nGreen: ");
+            Printx(&Stream, Buffer[0]);
+            Prints(&Stream, "\r\nRed:   ");
+            Printx(&Stream, Buffer[1]);
+            Prints(&Stream, "\r\nBlue:  ");
+            Printx(&Stream, Buffer[2]);
+
+            sz TxCount = (Stream.Next - TxData);
+            Assert(TxCount <= ArrayCount(TxData));
+            Stm32_USART_Write(USART2, TxData, TxCount);
         }
 
         Stm32_WaitForTick();

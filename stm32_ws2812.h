@@ -59,6 +59,24 @@ Stm32_WS2812_Data_Clear()
     GPIOA->BSRR = ((1 << 4) << 16);
 }
 
+internal void
+Stm32_USART_Write(USART_TypeDef* USART, void* DataStart, sz Count)
+{
+    u8* DataStart8 = (u8*) DataStart;
+    u8* DataEnd8 = (DataStart8 + Count);
+
+    u8* Data8 = DataStart8;
+    while(Data8 != DataEnd8)
+    {
+        while(!(USART->ISR & USART_ISR_TXE))
+        {
+            // NOTE: Busy wait
+        }
+
+        USART->TDR = *(Data8++);
+    }
+}
+
 //
 // NOTE: Symbols below should be provided by linker script
 //

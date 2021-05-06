@@ -7,7 +7,7 @@ CFLAGS="$CFLAGS -nostartfiles -ffreestanding -nostdlib"
 CFLAGS="$CFLAGS -Wl,-T../stm32_ws2812.ld"
 CFLAGS="$CFLAGS -Wall -Wextra -Wpedantic -Werror -Wfatal-errors -Wundef -Wshadow"
 CFLAGS="$CFLAGS -Wno-unused-variable -Wno-unused-function -Wno-unused-parameter -Wno-unused-but-set-variable"
-CFLAGS="$CFLAGS -O3 -g3 -ggdb"
+CFLAGS="$CFLAGS -Og -g3 -ggdb"
 CFLAGS="$CFLAGS -Wl,-Map=stm32_ws2812.map"
 
 TOOLSET="toolset/gcc-arm-none-eabi-10-2020-q4-major/bin"
