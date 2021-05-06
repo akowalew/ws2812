@@ -207,7 +207,11 @@ Stm32_WS2812_Send(sz Count, u8* DataStart)
         }
     }
 
-    Stm32_TIM14_WriteCompareValue(0);
+    sz Elapsed = 50;
+    while(Elapsed--)
+    {
+        Stm32_TIM14_WriteCompareValue(0);
+    }
 }
 
 private_global u8 LookupTable[] =
@@ -220,7 +224,9 @@ private_global u8 LookupTable[] =
     195, 196, 197, 198, 200, 201, 202, 203,
 };
 
-u8 Buffer[3 * 8];
+#define PIXELS_MAX 128
+
+u8 Buffer[3 * 128];
 
 internal noreturn void
 Stm32_Reset_Handler(void)
