@@ -278,16 +278,34 @@ AnimationUpdate_Fade()
     Fade_BIdx += Fade_BDelta;
 }
 
+internal void
+AnimationUpdate_Snake()
+{
+    Buffer[0] = 0;
+    Buffer[1] = 0;
+    Buffer[2] = 0;
+
+    // TODO: To be implemented!!!
+}
+
 #define ANIMATION_TYPES \
-    ANIMATION_TYPE(Manual) \
-    ANIMATION_TYPE(Fade) \
+    _ANIMATION_TYPE(Manual) \
+    _ANIMATION_TYPE(Fade) \
+    _ANIMATION_TYPE(Snake) \
 
 typedef enum
 {
-    #define ANIMATION_TYPE(X) Animation_ ## X,
+    #define _ANIMATION_TYPE(X) Animation_ ## X,
         ANIMATION_TYPES
-    #undef ANIMATION_TYPE
+    #undef _ANIMATION_TYPE
 } animation_type;
+
+#define _ANIMATION_TYPE(X) + 1
+enum
+{
+    ANIMATIONS_TYPES_COUNT = (0 ANIMATION_TYPES)
+};
+#undef _ANIMATION_TYPE
 
 internal const char*
 AnimationTypeToString(animation_type Type)
@@ -296,15 +314,27 @@ AnimationTypeToString(animation_type Type)
 
     switch(Type)
     {
-        #define ANIMATION_TYPE(X) case Animation_ ## X: Result = #X; break;
+        #define _ANIMATION_TYPE(X) case Animation_ ## X: Result = #X; break;
             ANIMATION_TYPES
-        #undef ANIMATION_TYPE
+        #undef _ANIMATION_TYPE
     }
 
     return Result;
 }
 
-animation_type Animation_Type;
+animation_type AnimationType;
+
+internal void
+SwitchToNextAnimationType()
+{
+    animation_type NextAnimationType = (AnimationType + 1);
+    if(NextAnimationType >= (animation_type)ANIMATIONS_TYPES_COUNT)
+    {
+        NextAnimationType = (animation_type) 0;
+    }
+
+    AnimationType = NextAnimationType;
+}
 
 internal noreturn void
 Stm32_Reset_Handler(void)
@@ -313,10 +343,11 @@ Stm32_Reset_Handler(void)
 
     while(1)
     {
-        switch(Animation_Type)
+        switch(AnimationType)
         {
             case Animation_Manual: AnimationUpdate_Manual(); break;
             case Animation_Fade: AnimationUpdate_Fade(); break;
+            case Animation_Snake: AnimationUpdate_Snake(); break;
         }
 
         if(USART2->ISR & USART_ISR_ORE)
@@ -331,14 +362,16 @@ Stm32_Reset_Handler(void)
             c8 RxChar = ToLower(RxByte);
             switch(RxChar)
             {
-                case 'q': SaturateIncrementU8(Buffer + 0); break;
-                case 'a': SaturateDecrementU8(Buffer + 0); break;
+                case 'q': SaturateIncrementU8(&Manual_G); break;
+                case 'a': SaturateDecrementU8(&Manual_G); break;
 
-                case 'w': SaturateIncrementU8(Buffer + 1); break;
-                case 's': SaturateDecrementU8(Buffer + 1); break;
+                case 'w': SaturateIncrementU8(&Manual_R); break;
+                case 's': SaturateDecrementU8(&Manual_R); break;
 
-                case 'e': SaturateIncrementU8(Buffer + 2); break;
-                case 'd': SaturateDecrementU8(Buffer + 2); break;
+                case 'e': SaturateIncrementU8(&Manual_B); break;
+                case 'd': SaturateDecrementU8(&Manual_B); break;
+
+                case ' ': SwitchToNextAnimationType(); break;
             }
 
             c8 TxData[2048];
@@ -351,7 +384,7 @@ Stm32_Reset_Handler(void)
             Printz(&Stream, "\033[2J");
             Printz(&Stream, "\033[H");
             Printz(&Stream, "Animation type: ");
-            Prints(&Stream, AnimationTypeToString(Animation_Type));
+            Prints(&Stream, AnimationTypeToString(AnimationType));
             Printz(&Stream, "\r\nGreen: ");
             Printx(&Stream, Buffer[0]);
             Printz(&Stream, "\r\nRed:   ");

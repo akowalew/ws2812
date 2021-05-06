@@ -118,7 +118,7 @@ Prints(stream* Stream, const c8* String)
         *(Next++) = *(Str++);
     }
 
-    // TODO: I know, i know, this is BUGGGGYYYY, but as far as we don't overflow stream, this will work also
+    // TODO: I know, i know, this is BUGGGGYYYY, but as far as we don't overflow stream, this will work
     Assert(Next <= (Stream->Next + Stream->Elapsed))
     Stream->Elapsed -= (Next - Stream->Next);
 
