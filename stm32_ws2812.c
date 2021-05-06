@@ -127,6 +127,7 @@ Stm32_Init_SysTick()
     SysTick->VAL = 0;
     SysTick->CTRL = (SysTick_CTRL_COUNTFLAG |
                      SysTick_CTRL_CLKSOURCE_CPU |
+                     SysTick_CTRL_TICKINT |
                      SysTick_CTRL_ENABLE);
 }
 
@@ -188,32 +189,18 @@ private_global u8 LookupTable[] =
     195, 196, 197, 198, 200, 201, 202, 203,
 };
 
+u8 Buffer[3] = { 0, 0, 0 };
+
 internal noreturn void
 Stm32_Reset_Handler(void)
 {
     Stm32_Init();
 
-    u8 Buffer[3] = { 0, 0, 0 };
-
-    sz Idx = 0;
-    int Delta = 1;
+    Buffer[0] = 15;
+    Buffer[1] = 15;
 
     while(1)
     {
-        Buffer[2] = LookupTable[Idx];
-        if(Idx == ArrayCount(LookupTable)-1)
-        {
-            Delta = -1;
-        }
-        else if(Idx == 0)
-        {
-            Delta = 1;
-        }
-
-        Idx += Delta;
-
-        Stm32_WS2812_Send(sizeof(Buffer), Buffer);
-        Stm32_LED_Toggle();
         Stm32_WaitForTick();
     }
 }
@@ -274,13 +261,14 @@ Stm32_PendSV_Handler()
 }
 #endif
 
-#if 1
+#if 0
 #define Stm32_SysTick_Handler Stm32_Dummy_Handler
 #else
 internal void
 Stm32_SysTick_Handler()
 {
-
+    Stm32_WS2812_Send(sizeof(Buffer), Buffer);
+    Stm32_LED_Toggle();
 }
 #endif
 
