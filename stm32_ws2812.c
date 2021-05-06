@@ -78,22 +78,32 @@ internal void
 Stm32_Init_GPIOA()
 {
     GPIOA->MODER = (0x28000000 |
+                    GPIO_MODER_MODER2_ALTERNATE |
+                    GPIO_MODER_MODER3_ALTERNATE |
                     GPIO_MODER_MODER4_ALTERNATE |
                     GPIO_MODER_MODER5_OUTPUT );
 
     GPIOA->OTYPER = (0x00000000 |
+                     GPIO_OTYPER_OT2_PUSHPULL |
+                     GPIO_OTYPER_OT3_PUSHPULL |
                      GPIO_OTYPER_OT4_PUSHPULL |
                      GPIO_OTYPER_OT5_PUSHPULL);
 
     GPIOA->OSPEEDR = (0x0C000000 |
+                      GPIO_OSPEEDR_OSPEEDR2_HIGH |
+                      GPIO_OSPEEDR_OSPEEDR3_HIGH |
                       GPIO_OSPEEDR_OSPEEDR4_HIGH |
                       GPIO_OSPEEDR_OSPEEDR5_HIGH);
 
     GPIOA->PUPDR = (0x24000000 |
+                    GPIO_PUPDR_PUPDR2_NONE |
+                    GPIO_PUPDR_PUPDR3_NONE |
                     GPIO_PUPDR_PUPDR4_NONE |
                     GPIO_PUPDR_PUPDR5_NONE);
 
-    GPIOA->AFRL = (GPIO_AFRL_AFSEL4_AF4);
+    GPIOA->AFRL = (GPIO_AFRL_AFSEL2_AF1 |
+                   GPIO_AFRL_AFSEL3_AF1 |
+                   GPIO_AFRL_AFSEL4_AF4);
 }
 
 internal void
