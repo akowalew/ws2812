@@ -4,6 +4,8 @@
 
 #include "stm32_ws2812.h"
 
+#include "fadeintable.c"
+
 private_global u32 Cpu_Hz;
 private_global u32 SysTick_Hz;
 private_global u32 USART2_BaudRate;
@@ -214,27 +216,60 @@ Stm32_WS2812_Send(sz Count, u8* DataStart)
     }
 }
 
-private_global u8 LookupTable[] =
-{
-    0, 36, 57, 72, 84, 94, 102, 109,
-    115, 121, 126, 130, 134, 138, 142, 145,
-    148, 151, 154, 157, 160, 162, 164, 167,
-    169, 171, 173, 175, 176, 178, 180, 182,
-    183, 185, 186, 188, 189, 191, 192, 193,
-    195, 196, 197, 198, 200, 201, 202, 203,
-};
-
 #define PIXELS_MAX 128
 
-u8 Buffer[3 * 128];
+u8 Buffer[3 * PIXELS_MAX];
 
 internal noreturn void
 Stm32_Reset_Handler(void)
 {
     Stm32_Init();
 
+    sz GIdx = 0;
+    sz RIdx = 20;
+    sz BIdx = 40;
+
+    int GDelta = 1;
+    int RDelta = -1;
+    int BDelta = 1;
+
     while(1)
     {
+        Buffer[0] = FadeInTable[GIdx];
+        Buffer[1] = FadeInTable[RIdx];
+        Buffer[2] = FadeInTable[BIdx];
+
+        if(GIdx == ArrayCount(FadeInTable)-1)
+        {
+            GDelta = -1;
+        }
+        else if(GIdx == 0)
+        {
+            GDelta = 1;
+        }
+
+        if(RIdx == ArrayCount(FadeInTable)-1)
+        {
+            RDelta = -1;
+        }
+        else if(RIdx == 0)
+        {
+            RDelta = 1;
+        }
+
+        if(BIdx == ArrayCount(FadeInTable)-1)
+        {
+            BDelta = -1;
+        }
+        else if(BIdx == 0)
+        {
+            BDelta = 1;
+        }
+
+        GIdx += GDelta;
+        RIdx += RDelta;
+        BIdx += BDelta;
+
         if(USART2->ISR & USART_ISR_ORE)
         {
             USART2->ICR = USART_ICR_ORECF;

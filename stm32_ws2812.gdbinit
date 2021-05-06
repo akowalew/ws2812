@@ -1,5 +1,5 @@
-#target extended-remote | openocd -f interface/stlink-v2-1.cfg -f target/stm32f0x_stlink.cfg -c "gdb_port pipe; log_output out/openocd.log"
-target extended-remote localhost:4242
+target extended-remote | openocd -f interface/stlink-v2-1.cfg -f target/stm32f0x_stlink.cfg -c "gdb_port pipe; log_output out/openocd.log"
+#target extended-remote localhost:4242
 
 set confirm off
 
@@ -27,8 +27,7 @@ define rlc
     save breakpoints out/stm32_ws2812.gdbbreakpoints
     delete breakpoints
     load
-    source out/stm32_ws2812.gdbbreakpoints
-    monitor reset init
+    monitor reset halt
     continue
     refresh
 end
