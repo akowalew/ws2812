@@ -108,7 +108,24 @@ Printb(stream* Stream, c8* Data, sz Count)
     Stream->Elapsed -= Count;
 }
 
-#define Prints(Stream, String) Printb(Stream, String, ArrayCount(String)-1)
+internal void
+Prints(stream* Stream, const c8* String)
+{
+    const c8* Str = String;
+    c8* Next = Stream->Next;
+    while(*Str)
+    {
+        *(Next++) = *(Str++);
+    }
+
+    // TODO: I know, i know, this is BUGGGGYYYY, but as far as we don't overflow stream, this will work also
+    Assert(Next <= (Stream->Next + Stream->Elapsed))
+    Stream->Elapsed -= (Next - Stream->Next);
+
+    Stream->Next = Next;
+}
+
+#define Printz(Stream, String) Printb(Stream, String, ArrayCount(String)-1)
 
 internal void
 Printx(stream* Stream, unsigned Number)

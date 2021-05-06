@@ -278,11 +278,31 @@ AnimationUpdate_Fade()
     Fade_BIdx += Fade_BDelta;
 }
 
+#define ANIMATION_TYPES \
+    ANIMATION_TYPE(Manual) \
+    ANIMATION_TYPE(Fade) \
+
 typedef enum
 {
-    Animation_Manual,
-    Animation_Fade,
+    #define ANIMATION_TYPE(X) Animation_ ## X,
+        ANIMATION_TYPES
+    #undef ANIMATION_TYPE
 } animation_type;
+
+internal const char*
+AnimationTypeToString(animation_type Type)
+{
+    const char* Result = 0;
+
+    switch(Type)
+    {
+        #define ANIMATION_TYPE(X) case Animation_ ## X: Result = #X; break;
+            ANIMATION_TYPES
+        #undef ANIMATION_TYPE
+    }
+
+    return Result;
+}
 
 animation_type Animation_Type;
 
@@ -328,13 +348,15 @@ Stm32_Reset_Handler(void)
                 .Elapsed = ArrayCount(TxData),
             };
 
-            Prints(&Stream, "\033[2J");
-            Prints(&Stream, "\033[H");
-            Prints(&Stream, "\r\nGreen: ");
+            Printz(&Stream, "\033[2J");
+            Printz(&Stream, "\033[H");
+            Printz(&Stream, "Animation type: ");
+            Prints(&Stream, AnimationTypeToString(Animation_Type));
+            Printz(&Stream, "\r\nGreen: ");
             Printx(&Stream, Buffer[0]);
-            Prints(&Stream, "\r\nRed:   ");
+            Printz(&Stream, "\r\nRed:   ");
             Printx(&Stream, Buffer[1]);
-            Prints(&Stream, "\r\nBlue:  ");
+            Printz(&Stream, "\r\nBlue:  ");
             Printx(&Stream, Buffer[2]);
 
             sz TxCount = (Stream.Next - TxData);
