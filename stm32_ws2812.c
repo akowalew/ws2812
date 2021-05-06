@@ -223,7 +223,7 @@ private_global u8 LookupTable[] =
     195, 196, 197, 198, 200, 201, 202, 203,
 };
 
-u8 Buffer[3] = { 15, 15, 0 };
+u8 Buffer[3 * 8];
 
 internal noreturn void
 Stm32_Reset_Handler(void)
@@ -244,14 +244,14 @@ Stm32_Reset_Handler(void)
             c8 RxChar = ToLower(RxByte);
             switch(RxChar)
             {
-                case 'q': SaturateIncrementU8(Buffer+0); break;
-                case 'a': SaturateDecrementU8(Buffer+0); break;
+                case 'q': for(sz Idx = 0; Idx < 8; Idx++) { SaturateIncrementU8(Buffer + Idx*3 + 0); } break;
+                case 'a': for(sz Idx = 0; Idx < 8; Idx++) { SaturateDecrementU8(Buffer + Idx*3 + 0); } break;
 
-                case 'w': SaturateIncrementU8(Buffer+1); break;
-                case 's': SaturateDecrementU8(Buffer+1); break;
+                case 'w': for(sz Idx = 0; Idx < 8; Idx++) { SaturateIncrementU8(Buffer + Idx*3 + 1); } break;
+                case 's': for(sz Idx = 0; Idx < 8; Idx++) { SaturateDecrementU8(Buffer + Idx*3 + 1); } break;
 
-                case 'e': SaturateIncrementU8(Buffer+2); break;
-                case 'd': SaturateDecrementU8(Buffer+2); break;
+                case 'e': for(sz Idx = 0; Idx < 8; Idx++) { SaturateIncrementU8(Buffer + Idx*3 + 2); } break;
+                case 'd': for(sz Idx = 0; Idx < 8; Idx++) { SaturateDecrementU8(Buffer + Idx*3 + 2); } break;
             }
         }
 
