@@ -220,55 +220,84 @@ Stm32_WS2812_Send(sz Count, u8* DataStart)
 
 u8 Buffer[3 * PIXELS_MAX];
 
+u8 Manual_G = 10;
+u8 Manual_R = 20;
+u8 Manual_B = 30;
+
+internal void
+AnimationUpdate_Manual()
+{
+    Buffer[0] = Manual_G;
+    Buffer[1] = Manual_R;
+    Buffer[2] = Manual_B;
+}
+
+sz  Fade_GIdx = 0;
+sz  Fade_RIdx = 20;
+sz  Fade_BIdx = 40;
+int Fade_GDelta = 1;
+int Fade_RDelta = -1;
+int Fade_BDelta = 1;
+
+internal void
+AnimationUpdate_Fade()
+{
+    Buffer[0] = FadeInTable[Fade_GIdx];
+    Buffer[1] = FadeInTable[Fade_RIdx];
+    Buffer[2] = FadeInTable[Fade_BIdx];
+
+    if(Fade_GIdx == ArrayCount(FadeInTable)-1)
+    {
+        Fade_GDelta = -1;
+    }
+    else if(Fade_GIdx == 0)
+    {
+        Fade_GDelta = 1;
+    }
+
+    if(Fade_RIdx == ArrayCount(FadeInTable)-1)
+    {
+        Fade_RDelta = -1;
+    }
+    else if(Fade_RIdx == 0)
+    {
+        Fade_RDelta = 1;
+    }
+
+    if(Fade_BIdx == ArrayCount(FadeInTable)-1)
+    {
+        Fade_BDelta = -1;
+    }
+    else if(Fade_BIdx == 0)
+    {
+        Fade_BDelta = 1;
+    }
+
+    Fade_GIdx += Fade_GDelta;
+    Fade_RIdx += Fade_RDelta;
+    Fade_BIdx += Fade_BDelta;
+}
+
+typedef enum
+{
+    Animation_Manual,
+    Animation_Fade,
+} animation_type;
+
+animation_type Animation_Type;
+
 internal noreturn void
 Stm32_Reset_Handler(void)
 {
     Stm32_Init();
 
-    sz GIdx = 0;
-    sz RIdx = 20;
-    sz BIdx = 40;
-
-    int GDelta = 1;
-    int RDelta = -1;
-    int BDelta = 1;
-
     while(1)
     {
-        Buffer[0] = FadeInTable[GIdx];
-        Buffer[1] = FadeInTable[RIdx];
-        Buffer[2] = FadeInTable[BIdx];
-
-        if(GIdx == ArrayCount(FadeInTable)-1)
+        switch(Animation_Type)
         {
-            GDelta = -1;
+            case Animation_Manual: AnimationUpdate_Manual(); break;
+            case Animation_Fade: AnimationUpdate_Fade(); break;
         }
-        else if(GIdx == 0)
-        {
-            GDelta = 1;
-        }
-
-        if(RIdx == ArrayCount(FadeInTable)-1)
-        {
-            RDelta = -1;
-        }
-        else if(RIdx == 0)
-        {
-            RDelta = 1;
-        }
-
-        if(BIdx == ArrayCount(FadeInTable)-1)
-        {
-            BDelta = -1;
-        }
-        else if(BIdx == 0)
-        {
-            BDelta = 1;
-        }
-
-        GIdx += GDelta;
-        RIdx += RDelta;
-        BIdx += BDelta;
 
         if(USART2->ISR & USART_ISR_ORE)
         {
@@ -282,14 +311,14 @@ Stm32_Reset_Handler(void)
             c8 RxChar = ToLower(RxByte);
             switch(RxChar)
             {
-                case 'q': for(sz Idx = 0; Idx < 8; Idx++) { SaturateIncrementU8(Buffer + Idx*3 + 0); } break;
-                case 'a': for(sz Idx = 0; Idx < 8; Idx++) { SaturateDecrementU8(Buffer + Idx*3 + 0); } break;
+                case 'q': SaturateIncrementU8(Buffer + 0); break;
+                case 'a': SaturateDecrementU8(Buffer + 0); break;
 
-                case 'w': for(sz Idx = 0; Idx < 8; Idx++) { SaturateIncrementU8(Buffer + Idx*3 + 1); } break;
-                case 's': for(sz Idx = 0; Idx < 8; Idx++) { SaturateDecrementU8(Buffer + Idx*3 + 1); } break;
+                case 'w': SaturateIncrementU8(Buffer + 1); break;
+                case 's': SaturateDecrementU8(Buffer + 1); break;
 
-                case 'e': for(sz Idx = 0; Idx < 8; Idx++) { SaturateIncrementU8(Buffer + Idx*3 + 2); } break;
-                case 'd': for(sz Idx = 0; Idx < 8; Idx++) { SaturateDecrementU8(Buffer + Idx*3 + 2); } break;
+                case 'e': SaturateIncrementU8(Buffer + 2); break;
+                case 'd': SaturateDecrementU8(Buffer + 2); break;
             }
 
             c8 TxData[2048];

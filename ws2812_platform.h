@@ -118,26 +118,24 @@ Printx(stream* Stream, unsigned Number)
     Assert(Stream->Elapsed >= ArrayCount(TmpData));
 
     c8* Tmp = TmpData;
-    *(Tmp++) = '\0';
+    *Tmp = '\0';
 
     do
     {
         unsigned Quotient = (Number / 16);
         unsigned Remainder = (Number - Quotient * 16);
-        *(Tmp++) = (Remainder < 10) ? ('0' + Remainder) : ('A' + Remainder - 10);
+        *(++Tmp) = (Remainder < 10) ? ('0' + Remainder) : ('A' + Remainder - 10);
         Number = Quotient;
     }
     while(Number);
-    Tmp--;
 
     c8* Next = Stream->Next;
     *(Next++) = '0';
     *(Next++) = 'x';
-    while((*(Next++) = *(Tmp--)))
+    while(*Tmp)
     {
-        // NOTE: Consume chars
+        *(Next++) = *(Tmp--);
     }
-    Next--;
 
     Stream->Elapsed -= (Next - Stream->Next);
     Stream->Next = Next;
