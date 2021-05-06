@@ -6,6 +6,7 @@
 
 private_global u32 Cpu_Hz;
 private_global u32 SysTick_Hz;
+private_global u32 USART2_BaudRate;
 
 internal void
 Stm32_Init_StaticData()
@@ -71,7 +72,8 @@ Stm32_Init_Clocks()
                    RCC_AHBENR_GPIODEN |
                    RCC_AHBENR_GPIOFEN);
 
-    RCC->APB1ENR = (RCC_APB1ENR_TIM14EN);
+    RCC->APB1ENR = (RCC_APB1ENR_TIM14EN |
+                    RCC_APB1ENR_USART2EN);
 }
 
 internal void
@@ -104,6 +106,27 @@ Stm32_Init_GPIOA()
     GPIOA->AFRL = (GPIO_AFRL_AFSEL2_AF1 |
                    GPIO_AFRL_AFSEL3_AF1 |
                    GPIO_AFRL_AFSEL4_AF4);
+}
+
+internal void
+Stm32_Init_USART2()
+{
+    USART2->CR3 = (USART_CR3_DMAT);
+
+    USART2_BaudRate = 115200;
+
+    u32 BRR_Floor = (Cpu_Hz / USART2_BaudRate);
+    u32 BRR_Ceil = (BRR_Floor + 1);
+
+    u32 BRR_Error_Floor = (Cpu_Hz - BRR_Floor * USART2_BaudRate);
+    u32 BRR_Error_Ceil = (BRR_Ceil * USART2_BaudRate - Cpu_Hz);
+    u32 BRR = (BRR_Error_Floor <= BRR_Error_Ceil) ? BRR_Floor : BRR_Ceil;
+
+    USART2->BRR = BRR;
+
+    USART2->CR1 = (USART_CR1_UE |
+                   USART_CR1_RE |
+                   USART_CR1_TE);
 }
 
 internal void
@@ -149,6 +172,7 @@ Stm32_Init()
     Stm32_Init_StaticData();
     Stm32_Init_Clocks();
     Stm32_Init_GPIOA();
+    Stm32_Init_USART2();
     Stm32_Init_SysTick();
     Stm32_Init_TIM14();
 }
@@ -199,18 +223,27 @@ private_global u8 LookupTable[] =
     195, 196, 197, 198, 200, 201, 202, 203,
 };
 
-u8 Buffer[3] = { 0, 0, 0 };
+u8 Buffer[3] = { 15, 15, 0 };
 
 internal noreturn void
 Stm32_Reset_Handler(void)
 {
     Stm32_Init();
 
-    Buffer[0] = 15;
-    Buffer[1] = 15;
-
     while(1)
     {
+        if(USART2->ISR & USART_ISR_ORE)
+        {
+            USART2->ICR = USART_ICR_ORECF;
+        }
+
+        if(USART2->ISR & USART_ISR_RXNE)
+        {
+            u8 RxByte = USART2->RDR;
+
+            USART2->TDR = RxByte;
+        }
+
         Stm32_WaitForTick();
     }
 }
