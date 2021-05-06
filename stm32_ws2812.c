@@ -241,7 +241,18 @@ Stm32_Reset_Handler(void)
         {
             u8 RxByte = USART2->RDR;
 
-            USART2->TDR = RxByte;
+            c8 RxChar = ToLower(RxByte);
+            switch(RxChar)
+            {
+                case 'q': SaturateIncrementU8(Buffer+0); break;
+                case 'a': SaturateDecrementU8(Buffer+0); break;
+
+                case 'w': SaturateIncrementU8(Buffer+1); break;
+                case 's': SaturateDecrementU8(Buffer+1); break;
+
+                case 'e': SaturateIncrementU8(Buffer+2); break;
+                case 'd': SaturateDecrementU8(Buffer+2); break;
+            }
         }
 
         Stm32_WaitForTick();

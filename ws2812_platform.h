@@ -11,6 +11,8 @@ typedef unsigned int sz;
 
 typedef u32 b32;
 
+typedef char c8;
+
 #define internal static
 #define private_global static
 #define public_global
@@ -27,3 +29,39 @@ typedef u32 b32;
 #define InvalidCodePath() Assert(!"InvalidCodePath")
 
 #define ArrayCount(x) (sizeof(x)/sizeof(x[0]))
+
+internal c8
+ToLower(c8 Char)
+{
+    c8 Result = 0;
+
+    if((Char >= 'A') &&
+       (Char <= 'Z'))
+    {
+        Result = ('a' + (Char - 'A'));
+    }
+    else
+    {
+        Result = Char;
+    }
+
+    return Result;
+}
+
+internal void
+SaturateIncrementU8(u8* Value)
+{
+    if(*Value < 255)
+    {
+        *Value = *Value + 1;
+    }
+}
+
+internal void
+SaturateDecrementU8(u8* Value)
+{
+    if(*Value > 0)
+    {
+        *Value = *Value - 1;
+    }
+}
