@@ -218,11 +218,11 @@ Stm32_WS2812_Send(sz Count, u8* DataStart)
 
 #define PIXELS_MAX 128
 
-u8 Buffer[3 * PIXELS_MAX];
+private_global u8 Buffer[3 * PIXELS_MAX];
 
-u8 Manual_G = 10;
-u8 Manual_R = 20;
-u8 Manual_B = 30;
+private_global u8 Manual_G = 10;
+private_global u8 Manual_R = 20;
+private_global u8 Manual_B = 30;
 
 internal void
 AnimationUpdate_Manual()
@@ -232,12 +232,12 @@ AnimationUpdate_Manual()
     Buffer[2] = Manual_B;
 }
 
-sz  Fade_GIdx = 0;
-sz  Fade_RIdx = 20;
-sz  Fade_BIdx = 40;
-int Fade_GDelta = 1;
-int Fade_RDelta = -1;
-int Fade_BDelta = 1;
+private_global sz  Fade_GIdx = 0;
+private_global sz  Fade_RIdx = 20;
+private_global sz  Fade_BIdx = 40;
+private_global int Fade_GDelta = 1;
+private_global int Fade_RDelta = -1;
+private_global int Fade_BDelta = 1;
 
 internal void
 AnimationUpdate_Fade()
@@ -278,14 +278,45 @@ AnimationUpdate_Fade()
     Fade_BIdx += Fade_BDelta;
 }
 
+private_global sz PixelsCount = 8;
+
+private_global sz Snake_Counter;
+private_global sz Snake_Tail;
+private_global sz Snake_Length = 3;
+
 internal void
 AnimationUpdate_Snake()
 {
-    Buffer[0] = 0;
-    Buffer[1] = 0;
-    Buffer[2] = 0;
+    Snake_Counter++;
+    if(Snake_Counter == 10)
+    {
+        Snake_Counter = 0;
 
-    // TODO: To be implemented!!!
+        ZeroMemory(Buffer, sizeof(Buffer));
+
+        sz Pos = Snake_Tail;
+        for(sz Idx = 0;
+            Idx < Snake_Length;
+            Idx++)
+        {
+            Assert(Pos < PixelsCount);
+            Buffer[Pos*3 + 0] = 15;
+            Buffer[Pos*3 + 1] = 0;
+            Buffer[Pos*3 + 2] = 0;
+
+            Pos++;
+            if(Pos >= PixelsCount)
+            {
+                Pos = 0;
+            }
+        }
+
+        Snake_Tail++;
+        if(Snake_Tail >= PixelsCount)
+        {
+            Snake_Tail = 0;
+        }
+    }
 }
 
 #define ANIMATION_TYPES \

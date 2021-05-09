@@ -67,6 +67,22 @@ SaturateDecrementU8(u8* Value)
 }
 
 internal void
+ZeroRange8(u8* Start, u8* End)
+{
+    u8* Data = Start;
+    while(Data != End)
+    {
+        *(Data++) = 0;
+    }
+}
+
+internal void
+ZeroMemory(void* Start, sz Count)
+{
+    ZeroRange8((u8*) Start, (u8*) Start + Count);
+}
+
+internal void
 CopyRange8(u8* DstStart, u8* DstEnd, u8* SrcStart)
 {
     u8* Dst = DstStart;
@@ -157,3 +173,4 @@ Printx(stream* Stream, unsigned Number)
     Stream->Elapsed -= (Next - Stream->Next);
     Stream->Next = Next;
 }
+
