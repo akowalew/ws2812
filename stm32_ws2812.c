@@ -336,6 +336,17 @@ SwitchToNextAnimationType()
     AnimationType = NextAnimationType;
 }
 
+internal void
+Animation_Update()
+{
+    switch(AnimationType)
+    {
+        case Animation_Manual: AnimationUpdate_Manual(); break;
+        case Animation_Fade: AnimationUpdate_Fade(); break;
+        case Animation_Snake: AnimationUpdate_Snake(); break;
+    }
+}
+
 internal noreturn void
 Stm32_Reset_Handler(void)
 {
@@ -343,13 +354,6 @@ Stm32_Reset_Handler(void)
 
     while(1)
     {
-        switch(AnimationType)
-        {
-            case Animation_Manual: AnimationUpdate_Manual(); break;
-            case Animation_Fade: AnimationUpdate_Fade(); break;
-            case Animation_Snake: AnimationUpdate_Snake(); break;
-        }
-
         if(USART2->ISR & USART_ISR_ORE)
         {
             USART2->ICR = USART_ICR_ORECF;
@@ -464,6 +468,7 @@ internal void
 Stm32_SysTick_Handler()
 {
     Stm32_LED_Set();
+    Animation_Update();
     Stm32_WS2812_Send(sizeof(Buffer), Buffer);
     Stm32_LED_Clear();
 }
