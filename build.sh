@@ -12,7 +12,7 @@ CFLAGS="$CFLAGS -Wl,-Map=stm32_ws2812.map"
 
 TOOLSET="toolset/gcc-arm-none-eabi-10-2020-q4-major/bin"
 
-set -ex
+set -e
 
 mkdir -p out
 (cd out; \

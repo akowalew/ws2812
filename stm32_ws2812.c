@@ -111,6 +111,18 @@ Stm32_Init_GPIOA()
 }
 
 internal void
+Stm32_Init_GPIOC()
+{
+    GPIOC->MODER = (GPIO_MODER_MODER13_INPUT);
+
+    GPIOC->OTYPER = 0;
+
+    GPIOC->OSPEEDR = 0;
+
+    GPIOC->PUPDR = (GPIO_PUPDR_PUPDR13_UP);
+}
+
+internal void
 Stm32_Init_USART2()
 {
     USART2->CR3 = (USART_CR3_DMAT);
@@ -162,7 +174,6 @@ Stm32_Init_SysTick()
                      SysTick_CTRL_TICKINT |
                      SysTick_CTRL_ENABLE);
 }
-
 
 internal void
 Stm32_Init()
@@ -385,6 +396,11 @@ Stm32_Reset_Handler(void)
 
     while(1)
     {
+        if(Stm32_BUTTON_IsPressed())
+        {
+            SwitchToNextAnimationType();
+        }
+
         if(USART2->ISR & USART_ISR_ORE)
         {
             USART2->ICR = USART_ICR_ORECF;

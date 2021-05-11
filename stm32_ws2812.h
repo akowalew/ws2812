@@ -47,6 +47,20 @@ Stm32_LED_Clear()
     GPIOA->BSRR = ((1 << 5) << 16);
 }
 
+internal u32
+Stm32_BUTTON_Read()
+{
+    u32 Result = (GPIOC->IDR & (1 << 13));
+    return Result;
+}
+
+internal b32
+Stm32_BUTTON_IsPressed()
+{
+    b32 Result = (Stm32_BUTTON_Read() == 0);
+    return Result;
+}
+
 internal void
 Stm32_WS2812_Data_Set()
 {
