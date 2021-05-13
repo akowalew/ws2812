@@ -386,6 +386,42 @@ Animation_Update()
         case Animation_Manual: AnimationUpdate_Manual(); break;
         case Animation_Fade: AnimationUpdate_Fade(); break;
         case Animation_Snake: AnimationUpdate_Snake(); break;
+        case Animation_Ekans: AnimationUpdate_Ekans(); break;
+    }
+}
+
+private_global u32 BUTTON_Pressed;
+private_global u32 BUTTON_Value;
+
+private_global volatile u32 BUTTON_Release_Head;
+private_global volatile u32 BUTTON_Press_Head;
+
+internal void
+BUTTON_Update(b32 Status)
+{
+    BUTTON_Value >>= 1;
+    if(Status)
+    {
+        BUTTON_Value |= 0x80;
+    }
+
+    if(BUTTON_Value == 0)
+    {
+        if(!BUTTON_Pressed)
+        {
+            BUTTON_Pressed = 1;
+
+            BUTTON_Press_Head++;
+        }
+    }
+    else if(BUTTON_Value == 0xFF)
+    {
+        if(BUTTON_Pressed)
+        {
+            BUTTON_Pressed = 0;
+
+            BUTTON_Release_Head++;
+        }
     }
 }
 
@@ -394,10 +430,14 @@ Stm32_Reset_Handler(void)
 {
     Stm32_Init();
 
+    u32 BUTTON_Press_Tail = 0;
+
     while(1)
     {
-        if(Stm32_BUTTON_IsPressed())
+        if(BUTTON_Press_Head != BUTTON_Press_Tail)
         {
+            BUTTON_Press_Tail = BUTTON_Press_Head;
+
             SwitchToNextAnimationType();
         }
 
@@ -515,6 +555,8 @@ internal void
 Stm32_SysTick_Handler()
 {
     Stm32_LED_Set();
+    u32 BUTTON_Status = Stm32_BUTTON_Read();
+    BUTTON_Update(BUTTON_Status);
     Animation_Update();
     Stm32_WS2812_Send(sizeof(Buffer), Buffer);
     Stm32_LED_Clear();
