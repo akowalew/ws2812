@@ -91,6 +91,46 @@ Stm32_USART_Write(USART_TypeDef* USART, void* DataStart, sz Count)
     }
 }
 
+#define WS2812_DATA_LOW_TIM14_CCR_VALUE (19 - 1)
+#define WS2812_DATA_HIGH_TIM14_CCR_VALUE (39 - 1)
+
+internal void
+Stm32_TIM14_WriteCompareValue(u16 CompareValue)
+{
+    while(!(TIM14->SR & TIM_SR_UIF))
+    {
+        // NOTE: Busy wait
+    }
+
+    TIM14->SR = 0;
+
+    TIM14->CCR1 = CompareValue;
+}
+
+internal void
+Stm32_WS2812_Send(sz Count, u8* DataStart)
+{
+    u8* Data = DataStart;
+    u8* DataEnd = (DataStart + Count);
+    while(Data != DataEnd)
+    {
+        u8 Byte = *(Data++);
+        u8 Mask = 0x80;
+        while(Mask)
+        {
+            u16 CompareValue = (Byte & Mask) ? WS2812_DATA_HIGH_TIM14_CCR_VALUE : WS2812_DATA_LOW_TIM14_CCR_VALUE;
+            Stm32_TIM14_WriteCompareValue(CompareValue);
+            Mask >>= 1;
+        }
+    }
+
+    sz Elapsed = 50;
+    while(Elapsed--)
+    {
+        Stm32_TIM14_WriteCompareValue(0);
+    }
+}
+
 //
 // NOTE: Symbols below should be provided by linker script
 //
