@@ -238,9 +238,39 @@ private_global u8 Manual_B = 30;
 internal void
 AnimationUpdate_Manual()
 {
-    Buffer[0] = Manual_G;
-    Buffer[1] = Manual_R;
-    Buffer[2] = Manual_B;
+    ZeroMemory(Buffer, sizeof(Buffer));
+
+    Buffer[3*0 + 0] = Manual_G;
+    Buffer[3*0 + 1] = Manual_R;
+    Buffer[3*0 + 2] = Manual_B;
+
+    Buffer[3*1 + 0] = 0;
+    Buffer[3*1 + 1] = 0;
+    Buffer[3*1 + 2] = Manual_B;
+
+    Buffer[3*2 + 0] = 0;
+    Buffer[3*2 + 1] = Manual_R;
+    Buffer[3*2 + 2] = 0;
+
+    Buffer[3*3 + 0] = Manual_G;
+    Buffer[3*3 + 1] = 0;
+    Buffer[3*3 + 2] = 0;
+
+    Buffer[3*4 + 0] = Manual_G;
+    Buffer[3*4 + 1] = 0;
+    Buffer[3*4 + 2] = Manual_B;
+
+    Buffer[3*5 + 0] = 0;
+    Buffer[3*5 + 1] = Manual_R;
+    Buffer[3*5 + 2] = Manual_B;
+
+    Buffer[3*6 + 0] = Manual_G;
+    Buffer[3*6 + 1] = Manual_R;
+    Buffer[3*6 + 2] = 0;
+
+    Buffer[3*7 + 0] = 0;
+    Buffer[3*7 + 1] = 0;
+    Buffer[3*7 + 2] = 0;
 }
 
 private_global sz  Fade_GIdx = 0;
@@ -253,6 +283,8 @@ private_global int Fade_BDelta = 1;
 internal void
 AnimationUpdate_Fade()
 {
+    ZeroMemory(Buffer, sizeof(Buffer));
+
     Buffer[0] = FadeInTable[Fade_GIdx];
     Buffer[1] = FadeInTable[Fade_RIdx];
     Buffer[2] = FadeInTable[Fade_BIdx];
@@ -330,10 +362,47 @@ AnimationUpdate_Snake()
     }
 }
 
+internal void
+AnimationUpdate_Ekans()
+{
+    Snake_Counter++;
+    if(Snake_Counter == 10)
+    {
+        Snake_Counter = 0;
+
+        ZeroMemory(Buffer, sizeof(Buffer));
+
+        sz Pos = Snake_Tail;
+        for(sz Idx = 0;
+            Idx < Snake_Length;
+            Idx++)
+        {
+            Assert(Pos < PixelsCount);
+            Buffer[Pos*3 + 0] = 15;
+            Buffer[Pos*3 + 1] = 0;
+            Buffer[Pos*3 + 2] = 0;
+
+            Pos++;
+            if(Pos >= PixelsCount)
+            {
+                Pos = 0;
+            }
+        }
+
+        if(Snake_Tail == 0)
+        {
+            Snake_Tail = PixelsCount;
+        }
+
+        Snake_Tail--;
+    }
+}
+
 #define ANIMATION_TYPES \
     _ANIMATION_TYPE(Manual) \
     _ANIMATION_TYPE(Fade) \
     _ANIMATION_TYPE(Snake) \
+    _ANIMATION_TYPE(Ekans) \
 
 typedef enum
 {
