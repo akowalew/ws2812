@@ -198,3 +198,33 @@ Animation_Update()
         case Animation_Ekans: AnimationUpdate_Ekans(); break;
     }
 }
+
+internal void
+Terminal_Update(u8 RxByte, stream* TxStream)
+{
+    c8 RxChar = ToLower(RxByte);
+    switch(RxChar)
+    {
+        case 'q': SaturateIncrementU8(&Manual_G); break;
+        case 'a': SaturateDecrementU8(&Manual_G); break;
+
+        case 'w': SaturateIncrementU8(&Manual_R); break;
+        case 's': SaturateDecrementU8(&Manual_R); break;
+
+        case 'e': SaturateIncrementU8(&Manual_B); break;
+        case 'd': SaturateDecrementU8(&Manual_B); break;
+
+        case ' ': SwitchToNextAnimationType(); break;
+    }
+
+    Printz(TxStream, "\033[2J");
+    Printz(TxStream, "\033[H");
+    Printz(TxStream, "Animation type: ");
+    Prints(TxStream, AnimationTypeToString(AnimationType));
+    Printz(TxStream, "\r\nGreen: ");
+    Printx(TxStream, Buffer[0]);
+    Printz(TxStream, "\r\nRed:   ");
+    Printx(TxStream, Buffer[1]);
+    Printz(TxStream, "\r\nBlue:  ");
+    Printx(TxStream, Buffer[2]);
+}

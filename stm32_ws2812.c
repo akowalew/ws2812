@@ -287,40 +287,16 @@ Stm32_Reset_Handler(void)
         {
             u8 RxByte = USART2->RDR;
 
-            c8 RxChar = ToLower(RxByte);
-            switch(RxChar)
-            {
-                case 'q': SaturateIncrementU8(&Manual_G); break;
-                case 'a': SaturateDecrementU8(&Manual_G); break;
-
-                case 'w': SaturateIncrementU8(&Manual_R); break;
-                case 's': SaturateDecrementU8(&Manual_R); break;
-
-                case 'e': SaturateIncrementU8(&Manual_B); break;
-                case 'd': SaturateDecrementU8(&Manual_B); break;
-
-                case ' ': SwitchToNextAnimationType(); break;
-            }
-
-            c8 TxData[2048];
-            stream Stream =
+            persist c8 TxData[2048];
+            stream TxStream =
             {
                 .Next = TxData,
                 .Elapsed = ArrayCount(TxData),
             };
 
-            Printz(&Stream, "\033[2J");
-            Printz(&Stream, "\033[H");
-            Printz(&Stream, "Animation type: ");
-            Prints(&Stream, AnimationTypeToString(AnimationType));
-            Printz(&Stream, "\r\nGreen: ");
-            Printx(&Stream, Buffer[0]);
-            Printz(&Stream, "\r\nRed:   ");
-            Printx(&Stream, Buffer[1]);
-            Printz(&Stream, "\r\nBlue:  ");
-            Printx(&Stream, Buffer[2]);
+            Terminal_Update(RxByte, &TxStream);
 
-            sz TxCount = (Stream.Next - TxData);
+            sz TxCount = (TxStream.Next - TxData);
             Assert(TxCount <= ArrayCount(TxData));
             Stm32_USART_Write(USART2, TxData, TxCount);
         }
