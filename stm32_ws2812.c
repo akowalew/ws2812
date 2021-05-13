@@ -187,56 +187,14 @@ Stm32_Init()
     Stm32_Init_TIM14();
 }
 
-private_global u32 BUTTON_Pressed;
-private_global u32 BUTTON_Value;
-
-private_global volatile u32 BUTTON_Release_Head;
-private_global volatile u32 BUTTON_Press_Head;
-
-internal void
-BUTTON_Update(b32 Status)
-{
-    BUTTON_Value >>= 1;
-    if(Status)
-    {
-        BUTTON_Value |= 0x80;
-    }
-
-    if(BUTTON_Value == 0)
-    {
-        if(!BUTTON_Pressed)
-        {
-            BUTTON_Pressed = 1;
-
-            BUTTON_Press_Head++;
-        }
-    }
-    else if(BUTTON_Value == 0xFF)
-    {
-        if(BUTTON_Pressed)
-        {
-            BUTTON_Pressed = 0;
-
-            BUTTON_Release_Head++;
-        }
-    }
-}
-
 internal noreturn void
 Stm32_Reset_Handler(void)
 {
     Stm32_Init();
 
-    u32 BUTTON_Press_Tail = 0;
-
     while(1)
     {
-        if(BUTTON_Press_Head != BUTTON_Press_Tail)
-        {
-            BUTTON_Press_Tail = BUTTON_Press_Head;
-
-            SwitchToNextAnimationType();
-        }
+        BUTTON_Handle();
 
         if(USART2->ISR & USART_ISR_ORE)
         {
