@@ -624,10 +624,14 @@ internal void
 Stm32_SysTick_Handler()
 {
     Stm32_LED_Set();
+
+    Stm32_WS2812_Send(sizeof(Buffer), Buffer);
+
     u32 BUTTON_Status = Stm32_BUTTON_Read();
     BUTTON_Update(BUTTON_Status);
+
     Animation_Update();
-    Stm32_WS2812_Send(sizeof(Buffer), Buffer);
+
     Stm32_LED_Clear();
 }
 #endif
